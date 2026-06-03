@@ -311,7 +311,7 @@ async function loadDash(btn){
 
     // fetch department labels (children of the Department parent label)
     const deptData=await linearGQL(`{
-      issueLabel(id:"${DEPT_LABEL_ID}"){
+      issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){
         children{ nodes{ id name } }
       }
     }`);
