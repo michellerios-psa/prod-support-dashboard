@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Prod Support Dashboard</title>
+<title>Prod Support — Bug Report</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -13,8 +13,10 @@
     --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
     --text: #f0f0f2; --muted: #888894; --dim: #4a4a56;
     --blue: #4f8ef7; --blue-dim: rgba(79,142,247,0.12);
-    --green: #4ade80; --gray: #6b7280; --gray-dim: rgba(107,114,128,0.12);
-    --red: #f87171; --amber: #fbbf24; --purple: #a78bfa;
+    --green: #4ade80; --green-dim: rgba(74,222,128,0.1);
+    --gray: #6b7280; --gray-dim: rgba(107,114,128,0.12);
+    --red: #f87171; --red-dim: rgba(248,113,113,0.1);
+    --amber: #fbbf24; --purple: #a78bfa;
     --font: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
     --radius: 8px; --radius-lg: 12px;
   }
@@ -22,10 +24,10 @@
   .app { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
   .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
   .logo-text { font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .screen { display: none; } .screen.active { display: block; }
-  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
   .lbl { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.6rem; }
   input[type="password"], input[type="date"] {
     background: var(--surface2); border: 0.5px solid var(--border2); border-radius: var(--radius);
@@ -43,66 +45,58 @@
   button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
   button.primary:hover { background: #6aa0f8; border-color: #6aa0f8; color: #fff; }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .tag-grid { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
-  .tag {
-    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px;
-    border-radius: 99px; border: 0.5px solid var(--border2); background: var(--surface2);
-    cursor: pointer; font-size: 12px; color: var(--muted); transition: all 0.15s; user-select: none;
-  }
-  .tag:hover { border-color: var(--blue); color: var(--blue); }
-  .tag.on { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
-  .section { margin-bottom: 1.4rem; }
+  .connect-row { display: flex; gap: 8px; margin-top: 10px; }
+  .connect-row input { flex: 1; }
   .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
   .date-field label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 5px; }
-  .quick-dates { display: flex; flex-wrap: wrap; gap: 6px; }
-  .qd { font-size: 11px; padding: 4px 10px; border-radius: 99px; }
-  .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
-  .scope-line { font-size: 11px; color: var(--dim); margin-bottom: 4px; font-family: var(--mono); }
-  .time-line { font-size: 11px; color: var(--dim); }
-  .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 2rem; }
+  .quick-dates { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .qd { font-size: 11px; padding: 4px 10px; border-radius: 99px; border: 0.5px solid var(--border2); background: var(--surface2); color: var(--muted); cursor: pointer; }
+  .qd:hover { border-color: var(--blue); color: var(--blue); background: var(--surface2); }
+  .hint { font-size: 12px; color: var(--dim); margin-top: 6px; }
+  .err { background: var(--red-dim); border: 0.5px solid rgba(248,113,113,0.25); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 1rem; }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* metrics */
+  .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
   .metric { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
-  .metric-val { font-size: 28px; font-weight: 300; color: var(--text); margin-bottom: 2px; font-family: var(--mono); }
+  .metric-val { font-size: 32px; font-weight: 300; font-family: var(--mono); margin-bottom: 2px; }
   .metric-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-  .team-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; }
-  .team-panel { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
-  .team-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid var(--border); }
-  .team-panel-name { font-size: 14px; font-weight: 500; color: var(--text); }
-  .team-panel-total { font-size: 12px; color: var(--dim); font-family: var(--mono); }
-  .team-mini-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 1rem; }
-  .mini-metric { text-align: center; }
-  .mini-metric-val { font-size: 20px; font-weight: 300; font-family: var(--mono); }
-  .mini-metric-lbl { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
-  .status-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
-  .status-row:last-child { border-bottom: none; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .status-name { font-size: 12px; color: var(--text); flex: 1; }
-  .bar-wrap { width: 80px; height: 3px; background: var(--surface2); border-radius: 99px; overflow: hidden; flex-shrink: 0; }
-  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
-  .status-count { font-size: 12px; font-weight: 500; font-family: var(--mono); min-width: 24px; text-align: right; }
-  .status-pct { font-size: 11px; color: var(--dim); min-width: 30px; text-align: right; }
-  .chevron-btn { background: none; border: none; color: var(--dim); cursor: pointer; padding: 1px 4px; font-size: 12px; }
+  .metric-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+  /* status breakdown */
+  .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .status-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+  .status-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .status-card-name { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .status-card-count { font-size: 28px; font-weight: 300; font-family: var(--mono); }
+  .status-card-se { font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .chevron-btn { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 11px; padding: 2px 4px; float: right; }
   .chevron-btn:hover { color: var(--blue); }
-  .issue-list { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; padding-left: 16px; }
-  .issue-list.open { max-height: 3000px; }
-  .issue-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid var(--border); font-size: 11px; }
-  .issue-item:last-child { border-bottom: none; }
+  .issue-list { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; margin-top: 8px; }
+  .issue-list.open { max-height: 2000px; }
+  .issue-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-top: 0.5px solid var(--border); font-size: 11px; }
   .issue-id { color: var(--dim); font-family: var(--mono); flex-shrink: 0; min-width: 54px; }
   .issue-title { color: var(--muted); flex: 1; }
-  .issue-date { color: var(--dim); font-size: 10px; flex-shrink: 0; font-family: var(--mono); }
+  .issue-team { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); }
+  .issue-team.se { background: var(--green-dim); color: var(--green); }
   .pri { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 99px; font-weight: 500; }
-  .pri-1 { background: rgba(248,113,113,0.12); color: var(--red); }
+  .pri-1 { background: var(--red-dim); color: var(--red); }
   .pri-2 { background: rgba(251,191,36,0.1); color: var(--amber); }
   .pri-3 { background: var(--blue-dim); color: var(--blue); }
   .pri-4 { background: var(--gray-dim); color: var(--gray); }
-  .team-chart-wrap { position: relative; height: 130px; margin-top: 1rem; }
-  .err { background: rgba(248,113,113,0.08); border: 0.5px solid rgba(248,113,113,0.25); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 1rem; }
-  .spinner { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: -2px; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .connect-row { display: flex; gap: 8px; margin-top: 10px; }
-  .connect-row input { flex: 1; }
-  .hint { font-size: 12px; color: var(--dim); margin-top: 6px; }
+
+  /* charts */
+  .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
+  .chart-wrap { position: relative; height: 240px; }
+
+  .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
+  .scope-line { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-bottom: 3px; }
+  .time-line { font-size: 11px; color: var(--dim); }
   .divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
-  .team-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--blue); background: var(--blue-dim); padding: 3px 10px; border-radius: 99px; margin-bottom: 8px; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
 </style>
 </head>
 <body>
@@ -110,14 +104,14 @@
   <header>
     <div class="logo">
       <div class="logo-dot"></div>
-      <span class="logo-text">Prod Support</span>
+      <span class="logo-text">Prod Support — Bug Tracker</span>
     </div>
     <div id="header-right" style="display:flex;gap:8px"></div>
   </header>
 
   <!-- KEY -->
   <div id="s-key" class="screen active">
-    <div class="card" style="max-width:480px">
+    <div class="card">
       <div class="lbl">Connect Linear</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem">Get your key from <strong style="color:var(--text)">Linear → Settings → Security &amp; access → Personal API keys</strong></p>
       <div class="connect-row">
@@ -135,42 +129,22 @@
   <!-- FILTER -->
   <div id="s-filter" class="screen">
     <div class="card">
-      <div class="lbl" style="margin-bottom:0.25rem">Filter prod support</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Showing <strong style="color:var(--text)">Product</strong> and <strong style="color:var(--text)">Requests</strong> teams. Filter by label and date range.</p>
-
-      <div class="section">
-        <div class="lbl">Labels — Product team</div>
-        <div class="tag-grid" id="label-tags-product"></div>
+      <div class="lbl">Date range</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Tracking bugs (label = "Bug") across <strong style="color:var(--text)">Product</strong> and <strong style="color:var(--text)">Requests</strong> teams, and escalations to <strong style="color:var(--text)">Software Engineering</strong>.</p>
+      <div class="quick-dates">
+        <button class="qd" onclick="setQuick(30)">Last 30 days</button>
+        <button class="qd" onclick="setQuick(60)">Last 60 days</button>
+        <button class="qd" onclick="setQuick(90)">Last 90 days</button>
+        <button class="qd" onclick="setQuick(180)">Last 6 months</button>
+        <button class="qd" onclick="setQuick(365)">Last year</button>
+        <button class="qd" onclick="setQuick(0)">All time</button>
       </div>
-
-      <div class="section">
-        <div class="lbl">Labels — Requests team</div>
-        <div class="tag-grid" id="label-tags-requests"></div>
+      <div class="date-row">
+        <div class="date-field"><label>From</label><input type="date" id="date-from"/></div>
+        <div class="date-field"><label>To</label><input type="date" id="date-to"/></div>
       </div>
-
-      <div class="section">
-        <div class="lbl">Labels — Software Engineering team</div>
-        <input type="text" id="label-search-se" placeholder="Search labels..." oninput="filterLabels('2c275f09-027b-4954-8b73-317ad7951996','label-tags-software-engineering',this.value)" style="margin-bottom:8px;font-family:var(--font);font-size:12px;padding:6px 10px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius);color:var(--text);outline:none;width:100%;box-sizing:border-box"/>
-        <div class="tag-grid" id="label-tags-software-engineering"></div>
-      </div>
-
-      <div class="section">
-        <div class="lbl">Date range (created at)</div>
-        <div class="quick-dates">
-          <button class="tag qd" onclick="setQuick(7)">Last 7 days</button>
-          <button class="tag qd" onclick="setQuick(14)">Last 14 days</button>
-          <button class="tag qd" onclick="setQuick(30)">Last 30 days</button>
-          <button class="tag qd" onclick="setQuick(90)">Last 90 days</button>
-          <button class="tag qd" onclick="setQuick(0)">All time</button>
-        </div>
-        <div class="date-row">
-          <div class="date-field"><label>From</label><input type="date" id="date-from"/></div>
-          <div class="date-field"><label>To</label><input type="date" id="date-to"/></div>
-        </div>
-        <p class="hint">Leave blank for all time.</p>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:0.5rem">
+      <p class="hint">Leave blank for all time.</p>
+      <div style="display:flex;gap:8px;margin-top:1.25rem">
         <button class="primary" onclick="loadDash(this)">Load dashboard</button>
         <button onclick="resetAll()">Start over</button>
       </div>
@@ -190,27 +164,37 @@
         <button onclick="goFilter()">Edit filters</button>
       </div>
     </div>
-    <div class="lbl" style="margin-bottom:0.75rem">Overall totals</div>
+
+    <!-- top metrics -->
     <div class="metric-row" id="metrics"></div>
+
     <div class="divider"></div>
-    <div class="lbl" style="margin-bottom:1rem">By team</div>
-    <div class="team-panels" id="team-panels"></div>
+
+    <!-- monthly trend chart -->
+    <div class="chart-card">
+      <div class="chart-title">Monthly bug trend</div>
+      <div class="chart-wrap"><canvas id="trend-chart" role="img" aria-label="Monthly bug trend"></canvas></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- status breakdown -->
+    <div class="section-title">Bug status breakdown</div>
+    <div class="breakdown-grid" id="breakdown"></div>
+
     <div id="err-dash"></div>
   </div>
 </div>
 
 <script>
-let apiKey='';
-// hardcoded team IDs for Product and Requests
-const TEAMS=[
-  {id:'8f171754-e8ca-48a5-a8fd-e0619e11e327', name:'Product'},
-  {id:'3ec72d19-8f91-41f8-aec9-f0afa528fe2e', name:'Requests'},
-  {id:'2c275f09-027b-4954-8b73-317ad7951996', name:'Software Engineering'}
-];
-let teamLabels={};   // { teamId: [{id,name}] }
-let selLabels={};    // { teamId: Set<id> }
-let chartInsts={};
+// hardcoded team IDs
+const PRODUCT_ID='8f171754-e8ca-48a5-a8fd-e0619e11e327';
+const REQUESTS_ID='3ec72d19-8f91-41f8-aec9-f0afa528fe2e';
+const SE_ID='2c275f09-027b-4954-8b73-317ad7951996';
+const SOURCE_TEAMS=[PRODUCT_ID, REQUESTS_ID];
 
+let apiKey='';
+let trendChart=null;
 const STATUSES=['In Progress','In Review','Done','Cancelled'];
 const SCOLORS={'In Progress':'#4f8ef7','In Review':'#a78bfa','Done':'#4ade80','Cancelled':'#6b7280'};
 const PRIL={1:'Urgent',2:'High',3:'Medium',4:'Low'};
@@ -218,9 +202,12 @@ const PRIL={1:'Urgent',2:'High',3:'Medium',4:'Low'};
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function setErr(id,msg){document.getElementById(id).innerHTML=msg?`<div class="err">${msg}</div>`:''}
 function fmtDate(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function monthKey(iso){const d=new Date(iso);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+function monthLabel(key){const[y,m]=key.split('-');return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'numeric'})}
+
 function setQuick(days){
   if(days===0){document.getElementById('date-from').value='';document.getElementById('date-to').value='';return}
-  const to=new Date(); const from=new Date(to);
+  const to=new Date();const from=new Date(to);
   from.setDate(from.getDate()-days);
   document.getElementById('date-from').value=from.toISOString().slice(0,10);
   document.getElementById('date-to').value=to.toISOString().slice(0,10);
@@ -239,10 +226,7 @@ async function linearGQL(query,variables={}){
 }
 
 (function(){
-  try{
-    const saved=localStorage.getItem('linear_api_key');
-    if(saved){ document.getElementById('api-input').value=saved; }
-  }catch(e){}
+  try{const saved=localStorage.getItem('linear_api_key');if(saved)document.getElementById('api-input').value=saved;}catch(e){}
 })();
 
 async function connectLinear(btn){
@@ -253,47 +237,10 @@ async function connectLinear(btn){
   btn.innerHTML='<span class="spinner"></span>Connecting…';btn.disabled=true;
   setErr('err-key','');
   try{
-    // fetch just the two teams and their labels
-    // fetch teams and labels separately to avoid query complexity issues
-    const teamsData=await linearGQL(`{ teams { nodes { id name } } }`);
-    // fetch all issueLabels for each of our two hardcoded teams using ID type
-    for(const t of TEAMS){
-      const found=teamsData.teams.nodes.find(n=>n.id===t.id);
-      if(!found) continue;
-    }
-    // fetch labels using no-arg nested query (confirmed working), then supplement
-    // with paginated root issueLabels query using ID type (also confirmed working)
-    const labelsData=await linearGQL(`{
-      teams { nodes { id labels { nodes { id name } } } }
-    }`);
-    for(const t of labelsData.teams.nodes){
-      teamLabels[t.id]=t.labels.nodes;
-    }
-    // for Software Engineering specifically, also fetch via root issueLabels with ID type
-    // to get past the default pagination limit
-    const seId='2c275f09-027b-4954-8b73-317ad7951996';
-    try{
-      let cursor=null; let hasMore=true;
-      const seLabels=[];
-      while(hasMore){
-        const q=cursor
-          ? `query($id:ID!,$c:String!){issueLabels(filter:{team:{id:{eq:$id}}} first:250 after:$c){nodes{id name}pageInfo{hasNextPage endCursor}}}`
-          : `query($id:ID!){issueLabels(filter:{team:{id:{eq:$id}}} first:250){nodes{id name}pageInfo{hasNextPage endCursor}}}`;
-        const vars=cursor?{id:seId,c:cursor}:{id:seId};
-        const r=await linearGQL(q,vars);
-        seLabels.push(...r.issueLabels.nodes);
-        hasMore=r.issueLabels.pageInfo.hasNextPage;
-        cursor=r.issueLabels.pageInfo.endCursor;
-      }
-      // merge with existing, dedupe by id
-      const seen=new Set(teamLabels[seId]?.map(l=>l.id)||[]);
-      for(const l of seLabels){ if(!seen.has(l.id)){seen.add(l.id);teamLabels[seId]=[...(teamLabels[seId]||[]),l];} }
-    }catch(e){ console.warn('SE label pagination failed',e.message); }
-    // init selLabels
-    for(const t of TEAMS) selLabels[t.id]=new Set();
-    renderLabels();
+    // quick validation query
+    await linearGQL(`{ viewer { id } }`);
     if(document.getElementById('remember-key').checked){
-      try{localStorage.setItem('linear_api_key', key);}catch(e){}
+      try{localStorage.setItem('linear_api_key',key);}catch(e){}
     } else {
       try{localStorage.removeItem('linear_api_key');}catch(e){}
     }
@@ -301,33 +248,6 @@ async function connectLinear(btn){
     show('s-filter');
   }catch(e){setErr('err-key','Could not connect: '+e.message);apiKey=''}
   finally{btn.innerHTML='Connect';btn.disabled=false}
-}
-
-function filterLabels(tid, elId, query){
-  const el=document.getElementById(elId);
-  const labels=(teamLabels[tid]||[]).filter(l=>!query||l.name.toLowerCase().includes(query.toLowerCase()));
-  if(!labels.length){el.innerHTML='<span style="font-size:12px;color:var(--dim)">No labels match</span>';return;}
-  el.innerHTML=labels.map(l=>
-    `<div class="tag${(selLabels[tid]||new Set()).has(l.id)?' on':''}" onclick="toggleLabel('${tid}','${l.id}')">${l.name}</div>`
-  ).join('');
-}
-
-function renderLabels(){
-  for(const t of TEAMS){
-    const elId = t.name==='Product'?'label-tags-product':t.name==='Requests'?'label-tags-requests':'label-tags-software-engineering';
-    const el=document.getElementById(elId);
-    const labels=teamLabels[t.id]||[];
-    if(!labels.length){el.innerHTML='<span style="font-size:12px;color:var(--dim)">No labels found</span>';continue;}
-    el.innerHTML=labels.map(l=>
-      `<div class="tag${(selLabels[t.id]||new Set()).has(l.id)?' on':''}" onclick="toggleLabel('${t.id}','${l.id}')">${l.name}</div>`
-    ).join('');
-  }
-}
-
-function toggleLabel(tid,lid){
-  if(!selLabels[tid]) selLabels[tid]=new Set();
-  selLabels[tid].has(lid)?selLabels[tid].delete(lid):selLabels[tid].add(lid);
-  renderLabels();
 }
 
 function goFilter(){show('s-filter')}
@@ -338,7 +258,7 @@ async function loadDash(btn){
   if(rb){rb.innerHTML='<span class="spinner"></span>Loading…';rb.disabled=true}
   setErr('err-dash','');
   document.getElementById('metrics').innerHTML='<div style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading…</div>';
-  document.getElementById('team-panels').innerHTML='';
+  document.getElementById('breakdown').innerHTML='';
 
   try{
     const dateFrom=document.getElementById('date-from').value;
@@ -347,133 +267,166 @@ async function loadDash(btn){
     if(dateFrom) dateFilter.gte=new Date(dateFrom).toISOString();
     if(dateTo){const d=new Date(dateTo);d.setHours(23,59,59,999);dateFilter.lte=d.toISOString();}
 
-    const teamResults=[];
-    for(const t of TEAMS){
-      const filter={team:{id:{eq:t.id}}};
-      const sl=selLabels[t.id]||new Set();
-      if(sl.size) filter.labels={id:{in:[...sl]}};
-      if(Object.keys(dateFilter).length) filter.createdAt=dateFilter;
+    // build filter for bugs in Product + Requests
+    const sourceFilter={
+      team:{id:{in:SOURCE_TEAMS}},
+      labels:{name:{eq:'Bug'}}
+    };
+    if(Object.keys(dateFilter).length) sourceFilter.createdAt=dateFilter;
 
-      const data=await linearGQL(
-        `query($filter:IssueFilter){issues(filter:$filter, first:250){nodes{id identifier title priority createdAt state{name type}}}}`,
-        {filter}
-      );
-      teamResults.push({...t, issues:data.issues.nodes});
+    // fetch bugs from Product + Requests
+    const bugsData=await linearGQL(
+      `query($filter:IssueFilter){issues(filter:$filter first:250){nodes{id identifier title priority createdAt state{name type}team{id name}}}}`,
+      {filter:sourceFilter}
+    );
+    const sourceBugs=bugsData.issues.nodes;
+
+    // fetch bugs that landed in SE (label=Bug, team=SE)
+    const seFilter={
+      team:{id:{eq:SE_ID}},
+      labels:{name:{eq:'Bug'}}
+    };
+    if(Object.keys(dateFilter).length) seFilter.createdAt=dateFilter;
+
+    const seData=await linearGQL(
+      `query($filter:IssueFilter){issues(filter:$filter first:250){nodes{id identifier title priority createdAt state{name type}}}}`,
+      {filter:seFilter}
+    );
+    const seBugs=seData.issues.nodes;
+
+    // combine all bugs for full picture
+    const allBugs=[...sourceBugs,...seBugs];
+    const totalReported=sourceBugs.length;
+    const totalSE=seBugs.length;
+    const escalationRate=totalReported>0?Math.round(totalSE/totalReported*100):0;
+
+    // status buckets across source bugs
+    const buckets={'In Progress':[],'In Review':[],'Done':[],'Cancelled':[],'Other':[]};
+    for(const i of sourceBugs){
+      const type=(i.state?.type||'').toLowerCase();
+      const name=(i.state?.name||'').toLowerCase();
+      if(name.includes('review')) buckets['In Review'].push(i);
+      else if(type==='started'||name.includes('progress')) buckets['In Progress'].push(i);
+      else if(type==='completed'||name==='done') buckets['Done'].push(i);
+      else if(type==='cancelled') buckets['Cancelled'].push(i);
+      else buckets['Other'].push(i);
     }
 
-    const allBuckets=[];
-    let grandTotal=0,grandIP=0,grandIR=0,grandDone=0,grandCan=0;
-    for(const tr of teamResults){
-      const buckets={'In Progress':[],'In Review':[],'Done':[],'Cancelled':[]};
-      for(const i of tr.issues){
-        const type=(i.state?.type||'').toLowerCase();
-        const name=(i.state?.name||'').toLowerCase();
-        if(name.includes('review')) buckets['In Review'].push(i);
-        else if(type==='started'||name.includes('progress')) buckets['In Progress'].push(i);
-        else if(type==='completed'||name==='done') buckets['Done'].push(i);
-        else if(type==='cancelled') buckets['Cancelled'].push(i);
-      }
-      const total=Object.values(buckets).reduce((s,b)=>s+b.length,0);
-      grandTotal+=total;grandIP+=buckets['In Progress'].length;grandIR+=buckets['In Review'].length;
-      grandDone+=buckets['Done'].length;grandCan+=buckets['Cancelled'].length;
-      allBuckets.push({...tr,buckets,total});
+    // monthly trend
+    const monthlyReported={};
+    const monthlySE={};
+    for(const i of sourceBugs){
+      const k=monthKey(i.createdAt);
+      monthlyReported[k]=(monthlyReported[k]||0)+1;
     }
+    for(const i of seBugs){
+      const k=monthKey(i.createdAt);
+      monthlySE[k]=(monthlySE[k]||0)+1;
+    }
+    // get sorted month keys
+    const allMonths=[...new Set([...Object.keys(monthlyReported),...Object.keys(monthlySE)])].sort();
 
-    const labelParts=[];
-    for(const t of TEAMS){
-      const sl=selLabels[t.id]||new Set();
-      if(sl.size){
-        const names=[...sl].map(id=>(teamLabels[t.id]||[]).find(l=>l.id===id)?.name).filter(Boolean);
-        if(names.length) labelParts.push(`${t.name}: ${names.join(', ')}`);
-      }
-    }
     const dateLabel=dateFrom&&dateTo?`${fmtDate(dateFrom)} – ${fmtDate(dateTo)}`:dateFrom?`from ${fmtDate(dateFrom)}`:dateTo?`until ${fmtDate(dateTo)}`:'all time';
-    document.getElementById('dash-scope').textContent='teams: Product, Requests, Software Engineering'+(labelParts.length?' · '+labelParts.join(' · '):'');
+    document.getElementById('dash-scope').textContent='scope: Product + Requests → Software Engineering';
     document.getElementById('dash-time').textContent=`${dateLabel} · snapshot ${new Date().toLocaleString()}`;
 
+    // render metrics
     document.getElementById('metrics').innerHTML=`
-      <div class="metric"><div class="metric-val">${grandTotal}</div><div class="metric-lbl">Total</div></div>
-      <div class="metric"><div class="metric-val">${grandIP}</div><div class="metric-lbl">In progress</div></div>
-      <div class="metric"><div class="metric-val">${grandIR}</div><div class="metric-lbl">In review</div></div>
-      <div class="metric"><div class="metric-val">${grandDone}</div><div class="metric-lbl">Done</div></div>
-      <div class="metric"><div class="metric-val">${grandCan}</div><div class="metric-lbl">Cancelled</div></div>`;
+      <div class="metric">
+        <div class="metric-val" style="color:var(--red)">${totalReported}</div>
+        <div class="metric-lbl">Bugs reported</div>
+        <div class="metric-sub">Product + Requests</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--amber)">${totalSE}</div>
+        <div class="metric-lbl">Sent to SE</div>
+        <div class="metric-sub">Software Engineering</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--blue)">${escalationRate}%</div>
+        <div class="metric-lbl">Escalation rate</div>
+        <div class="metric-sub">of reported bugs</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--green)">${buckets['Done'].length}</div>
+        <div class="metric-lbl">Resolved</div>
+        <div class="metric-sub">status = Done</div>
+      </div>`;
 
-    Object.values(chartInsts).forEach(c=>c.destroy());chartInsts={};
-    const panelsEl=document.getElementById('team-panels');
-    panelsEl.innerHTML='';
-
-    for(const tr of allBuckets){
-      const chartId='chart-'+tr.id;
-      const panel=document.createElement('div');
-      panel.className='team-panel';
-
-      const statusRows=STATUSES.map((s,idx)=>{
-        const list=tr.buckets[s];const c=list.length;
-        const pct=tr.total?Math.round(c/tr.total*100):0;
-        const col=SCOLORS[s];
-        const rowId=`issues-${tr.id}-${idx}`;
-        const rows=list.slice(0,10).map(i=>`<div class="issue-item">
-          <span class="issue-id">${i.identifier}</span>
-          <span class="issue-title">${i.title}</span>
-          <span class="issue-date">${fmtDate(i.createdAt)}</span>
-          <span class="pri pri-${i.priority||4}">${PRIL[i.priority]||'None'}</span>
-        </div>`).join('');
-        const more=c-10;
-        return `<div class="status-row">
-          <span class="dot" style="background:${col}"></span>
-          <span class="status-name">${s}</span>
-          <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
-          <span class="status-count" style="color:${col}">${c}</span>
-          <span class="status-pct">${pct}%</span>
-          ${c?`<button class="chevron-btn" onclick="toggleList('${rowId}',this)">▾</button>`:'<span style="width:26px"></span>'}
-        </div>
-        ${c?`<div class="issue-list" id="${rowId}">
-          <div style="padding:4px 0 6px">${rows}</div>
-          ${more>0?`<div style="padding:2px 0 6px;font-size:10px;color:var(--dim)">+ ${more} more not shown</div>`:''}
-        </div>`:''}`;
-      }).join('');
-
-      panel.innerHTML=`
-        <div class="team-panel-header">
-          <span class="team-panel-name">${tr.name}</span>
-          <span class="team-panel-total">${tr.total} issues</span>
-        </div>
-        <div class="team-mini-metrics">
-          ${STATUSES.map(s=>`<div class="mini-metric">
-            <div class="mini-metric-val" style="color:${SCOLORS[s]}">${tr.buckets[s].length}</div>
-            <div class="mini-metric-lbl">${s==='In Progress'?'In Prog':s==='In Review'?'Review':s==='Cancelled'?'Cancel':s}</div>
-          </div>`).join('')}
-        </div>
-        <div>${statusRows}</div>
-        <div class="team-chart-wrap"><canvas id="${chartId}" role="img" aria-label="Issues for ${tr.name}"></canvas></div>`;
-
-      panelsEl.appendChild(panel);
-
-      setTimeout(()=>{
-        const ctx=document.getElementById(chartId)?.getContext('2d');
-        if(!ctx)return;
-        chartInsts[tr.id]=new Chart(ctx,{
-          type:'bar',
-          data:{
-            labels:STATUSES.map(s=>s==='In Progress'?'In Prog':s==='In Review'?'Review':s==='Cancelled'?'Cancel':s),
-            datasets:[{
-              data:STATUSES.map(s=>tr.buckets[s].length),
-              backgroundColor:STATUSES.map(s=>SCOLORS[s]+'33'),
-              borderColor:STATUSES.map(s=>SCOLORS[s]),
-              borderWidth:1,borderRadius:3,borderSkipped:false
-            }]
+    // render monthly trend chart
+    if(trendChart) trendChart.destroy();
+    const ctx=document.getElementById('trend-chart').getContext('2d');
+    trendChart=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:allMonths.map(monthLabel),
+        datasets:[
+          {
+            label:'Bugs reported',
+            data:allMonths.map(k=>monthlyReported[k]||0),
+            backgroundColor:'rgba(248,113,113,0.2)',
+            borderColor:'#f87171',
+            borderWidth:1,
+            borderRadius:3,
+            order:2
           },
-          options:{
-            responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{display:false}},
-            scales:{
-              x:{grid:{display:false},ticks:{color:'#888894',font:{size:10},autoSkip:false}},
-              y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:10},stepSize:1}}
-            }
+          {
+            label:'Sent to SE',
+            data:allMonths.map(k=>monthlySE[k]||0),
+            type:'line',
+            borderColor:'#4f8ef7',
+            backgroundColor:'rgba(79,142,247,0.1)',
+            borderWidth:2,
+            pointRadius:4,
+            pointBackgroundColor:'#4f8ef7',
+            tension:0.3,
+            fill:true,
+            order:1
           }
-        });
-      },50);
-    }
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{
+            display:true,
+            labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}
+          }
+        },
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},autoSkip:false,maxRotation:45}},
+          y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},stepSize:1}}
+        }
+      }
+    });
+
+    // render status breakdown
+    const breakdownEl=document.getElementById('breakdown');
+    breakdownEl.innerHTML=STATUSES.map((s,idx)=>{
+      const list=buckets[s]||[];const c=list.length;
+      const col=SCOLORS[s];
+      const rowId=`issues-${idx}`;
+      const rows=list.slice(0,10).map(i=>`<div class="issue-item">
+        <span class="issue-id">${i.identifier}</span>
+        <span class="issue-title">${i.title}</span>
+        <span class="pri pri-${i.priority||4}">${PRIL[i.priority]||'None'}</span>
+      </div>`).join('');
+      const more=c-10;
+      return `<div class="status-card">
+        <div class="status-card-header">
+          <span class="dot" style="background:${col}"></span>
+          <span class="status-card-name">${s}</span>
+          ${c?`<button class="chevron-btn" onclick="toggleList('${rowId}',this)">▾</button>`:''}
+        </div>
+        <div class="status-card-count" style="color:${col}">${c}</div>
+        <div class="status-card-se" style="font-size:11px;color:var(--dim)">${totalReported>0?Math.round(c/totalReported*100):0}% of reported</div>
+        ${c?`<div class="issue-list" id="${rowId}">
+          ${rows}
+          ${more>0?`<div style="padding:4px 0;font-size:10px;color:var(--dim)">+ ${more} more</div>`:''}
+        </div>`:''}
+      </div>`;
+    }).join('');
+
   }catch(e){setErr('err-dash','Failed to load: '+e.message)}
   finally{const rb=document.getElementById('refresh-btn');if(rb){rb.innerHTML='↻ Refresh';rb.disabled=false}}
 }
@@ -485,11 +438,11 @@ function toggleList(id,btn){
 }
 
 function resetAll(){
-  apiKey='';teamLabels={};selLabels={};
-  Object.values(chartInsts).forEach(c=>c.destroy());chartInsts={};
+  apiKey='';
+  if(trendChart){trendChart.destroy();trendChart=null;}
+  try{localStorage.removeItem('linear_api_key');}catch(e){}
   document.getElementById('api-input').value='';
   document.getElementById('header-right').innerHTML='';
-  try{localStorage.removeItem('linear_api_key');}catch(e){}
   show('s-key');
 }
 </script>
