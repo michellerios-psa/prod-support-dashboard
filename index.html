@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Prod Support — Bug Report</title>
+<title>Prod Support — Bug Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -43,7 +43,7 @@
   }
   button:hover { background: var(--surface2); border-color: var(--blue); color: var(--blue); }
   button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-  button.primary:hover { background: #6aa0f8; border-color: #6aa0f8; color: #fff; }
+  button.primary:hover { background: #6aa0f8; color: #fff; }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   .connect-row { display: flex; gap: 8px; margin-top: 10px; }
   .connect-row input { flex: 1; }
@@ -51,52 +51,49 @@
   .date-field label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 5px; }
   .quick-dates { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .qd { font-size: 11px; padding: 4px 10px; border-radius: 99px; border: 0.5px solid var(--border2); background: var(--surface2); color: var(--muted); cursor: pointer; }
-  .qd:hover { border-color: var(--blue); color: var(--blue); background: var(--surface2); }
+  .qd:hover { border-color: var(--blue); color: var(--blue); }
   .hint { font-size: 12px; color: var(--dim); margin-top: 6px; }
   .err { background: var(--red-dim); border: 0.5px solid rgba(248,113,113,0.25); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 1rem; }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: -2px; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* metrics */
   .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
   .metric { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
   .metric-val { font-size: 32px; font-weight: 300; font-family: var(--mono); margin-bottom: 2px; }
   .metric-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
   .metric-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
-
-  /* status breakdown */
   .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
   .status-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; }
   .status-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
   .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .status-card-name { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .status-card-name { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; flex: 1; }
   .status-card-count { font-size: 28px; font-weight: 300; font-family: var(--mono); }
-  .status-card-se { font-size: 11px; color: var(--dim); margin-top: 4px; }
-  .chevron-btn { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 11px; padding: 2px 4px; float: right; }
+  .chevron-btn { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 11px; padding: 2px 4px; }
   .chevron-btn:hover { color: var(--blue); }
   .issue-list { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; margin-top: 8px; }
   .issue-list.open { max-height: 2000px; }
   .issue-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-top: 0.5px solid var(--border); font-size: 11px; }
   .issue-id { color: var(--dim); font-family: var(--mono); flex-shrink: 0; min-width: 54px; }
   .issue-title { color: var(--muted); flex: 1; }
-  .issue-team { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); }
-  .issue-team.se { background: var(--green-dim); color: var(--green); }
   .pri { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 99px; font-weight: 500; }
   .pri-1 { background: var(--red-dim); color: var(--red); }
   .pri-2 { background: rgba(251,191,36,0.1); color: var(--amber); }
   .pri-3 { background: var(--blue-dim); color: var(--blue); }
   .pri-4 { background: var(--gray-dim); color: var(--gray); }
-
-  /* charts */
   .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
   .chart-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
   .chart-wrap { position: relative; height: 240px; }
-
   .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
   .scope-line { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-bottom: 3px; }
   .time-line { font-size: 11px; color: var(--dim); }
   .divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
   .section-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
+  .dept-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+  .dept-row:last-child { border-bottom: none; }
+  .dept-name { font-size: 12px; color: var(--text); min-width: 180px; flex-shrink: 0; }
+  .dept-bar-wrap { flex: 1; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .dept-bar { height: 100%; border-radius: 99px; background: var(--blue); }
+  .dept-count { font-size: 13px; font-weight: 500; font-family: var(--mono); min-width: 28px; text-align: right; color: var(--blue); }
+  .dept-pct { font-size: 11px; color: var(--dim); min-width: 36px; text-align: right; }
 </style>
 </head>
 <body>
@@ -130,7 +127,7 @@
   <div id="s-filter" class="screen">
     <div class="card">
       <div class="lbl">Date range</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Tracking bugs (label = "Bug") across <strong style="color:var(--text)">Product</strong> and <strong style="color:var(--text)">Requests</strong> teams, and escalations to <strong style="color:var(--text)">Software Engineering</strong>.</p>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Tracking bugs across <strong style="color:var(--text)">Product</strong> and <strong style="color:var(--text)">Requests</strong> teams, and escalations to <strong style="color:var(--text)">Software Engineering</strong>.</p>
       <div class="quick-dates">
         <button class="qd" onclick="setQuick(30)">Last 30 days</button>
         <button class="qd" onclick="setQuick(60)">Last 60 days</button>
@@ -165,53 +162,49 @@
       </div>
     </div>
 
-    <!-- top metrics -->
     <div class="metric-row" id="metrics"></div>
 
     <div class="divider"></div>
 
-    <!-- monthly trend chart -->
     <div class="chart-card">
       <div class="chart-title">Monthly bug trend</div>
-      <div class="chart-wrap"><canvas id="trend-chart" role="img" aria-label="Monthly bug trend"></canvas></div>
+      <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
     </div>
 
     <div class="divider"></div>
-
-    <!-- status breakdown -->
     <div class="section-title">Bug status breakdown</div>
     <div class="breakdown-grid" id="breakdown"></div>
 
     <div class="divider"></div>
     <div class="section-title">Bugs by department</div>
-    <div id="dept-breakdown"></div>
+    <div class="card" id="dept-breakdown"><span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading departments...</span></div>
 
     <div id="err-dash"></div>
   </div>
 </div>
 
 <script>
-// hardcoded team IDs
-const PRODUCT_ID='8f171754-e8ca-48a5-a8fd-e0619e11e327';
-const REQUESTS_ID='3ec72d19-8f91-41f8-aec9-f0afa528fe2e';
-const SE_ID='2c275f09-027b-4954-8b73-317ad7951996';
-const SOURCE_TEAMS=[PRODUCT_ID, REQUESTS_ID];
+const PRODUCT_ID  = '8f171754-e8ca-48a5-a8fd-e0619e11e327';
+const REQUESTS_ID = '3ec72d19-8f91-41f8-aec9-f0afa528fe2e';
+const SE_ID       = '2c275f09-027b-4954-8b73-317ad7951996';
+const DEPT_LABEL_ID = '19c74492-713c-48be-b714-3859d663fdfb';
+const SOURCE_TEAMS = [PRODUCT_ID, REQUESTS_ID];
 
-let apiKey='';
-let trendChart=null;
-const STATUSES=['In Progress','In Review','Done','Cancelled'];
-const SCOLORS={'In Progress':'#4f8ef7','In Review':'#a78bfa','Done':'#4ade80','Cancelled':'#6b7280'};
-const PRIL={1:'Urgent',2:'High',3:'Medium',4:'Low'};
+let apiKey = '';
+let trendChart = null;
+const STATUSES = ['In Progress','In Review','Done','Cancelled'];
+const SCOLORS  = {'In Progress':'#4f8ef7','In Review':'#a78bfa','Done':'#4ade80','Cancelled':'#6b7280'};
+const PRIL     = {1:'Urgent',2:'High',3:'Medium',4:'Low'};
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
-function setErr(id,msg){document.getElementById(id).innerHTML=msg?`<div class="err">${msg}</div>`:''}
-function fmtDate(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-function monthKey(iso){const d=new Date(iso);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
-function monthLabel(key){const[y,m]=key.split('-');return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'numeric'})}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function setErr(id,msg){document.getElementById(id).innerHTML=msg?`<div class="err">${msg}</div>`:'';}
+function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function monthKey(iso){const d=new Date(iso);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+function monthLabel(k){const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'numeric'});}
 
 function setQuick(days){
-  if(days===0){document.getElementById('date-from').value='';document.getElementById('date-to').value='';return}
-  const to=new Date();const from=new Date(to);
+  if(days===0){document.getElementById('date-from').value='';document.getElementById('date-to').value='';return;}
+  const to=new Date(),from=new Date(to);
   from.setDate(from.getDate()-days);
   document.getElementById('date-from').value=from.toISOString().slice(0,10);
   document.getElementById('date-to').value=to.toISOString().slice(0,10);
@@ -229,19 +222,19 @@ async function linearGQL(query,variables={}){
   return json.data;
 }
 
+// auto-fill saved key
 (function(){
-  try{const saved=localStorage.getItem('linear_api_key');if(saved)document.getElementById('api-input').value=saved;}catch(e){}
+  try{const s=localStorage.getItem('linear_api_key');if(s)document.getElementById('api-input').value=s;}catch(e){}
 })();
 
 async function connectLinear(btn){
   const raw=document.getElementById('api-input').value;
   const key=raw.replace(/[^\x20-\x7E]/g,'').trim();
-  if(!key){setErr('err-key','Please enter an API key.');return}
+  if(!key){setErr('err-key','Please enter an API key.');return;}
   apiKey=key;
   btn.innerHTML='<span class="spinner"></span>Connecting…';btn.disabled=true;
   setErr('err-key','');
   try{
-    // quick validation query
     await linearGQL(`{ viewer { id } }`);
     if(document.getElementById('remember-key').checked){
       try{localStorage.setItem('linear_api_key',key);}catch(e){}
@@ -250,19 +243,20 @@ async function connectLinear(btn){
     }
     document.getElementById('header-right').innerHTML=`<button onclick="resetAll()">Disconnect</button>`;
     show('s-filter');
-  }catch(e){setErr('err-key','Could not connect: '+e.message);apiKey=''}
-  finally{btn.innerHTML='Connect';btn.disabled=false}
+  }catch(e){setErr('err-key','Could not connect: '+e.message);apiKey='';}
+  finally{btn.innerHTML='Connect';btn.disabled=false;}
 }
 
-function goFilter(){show('s-filter')}
+function goFilter(){show('s-filter');}
 
 async function loadDash(btn){
   setErr('err-filter','');show('s-dash');
   const rb=document.getElementById('refresh-btn');
-  if(rb){rb.innerHTML='<span class="spinner"></span>Loading…';rb.disabled=true}
+  if(rb){rb.innerHTML='<span class="spinner"></span>Loading…';rb.disabled=true;}
   setErr('err-dash','');
   document.getElementById('metrics').innerHTML='<div style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading…</div>';
   document.getElementById('breakdown').innerHTML='';
+  document.getElementById('dept-breakdown').innerHTML='<span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading departments...</span>';
 
   try{
     const dateFrom=document.getElementById('date-from').value;
@@ -271,36 +265,25 @@ async function loadDash(btn){
     if(dateFrom) dateFilter.gte=new Date(dateFrom).toISOString();
     if(dateTo){const d=new Date(dateTo);d.setHours(23,59,59,999);dateFilter.lte=d.toISOString();}
 
-    // fetch all bugs from Product + Requests
-    const sourceFilter={
-      team:{id:{in:SOURCE_TEAMS}},
-      labels:{name:{eq:'Bug'}}
-    };
+    // 1. Bugs in Product + Requests
+    const sourceFilter={team:{id:{in:SOURCE_TEAMS}},labels:{name:{eq:'Bug'}}};
     if(Object.keys(dateFilter).length) sourceFilter.createdAt=dateFilter;
-
     const bugsData=await linearGQL(
-      `query($filter:IssueFilter){issues(filter:$filter first:250){nodes{id identifier title priority createdAt state{name type}team{id name}labels{nodes{name}}}}}`,
-      {filter:sourceFilter}
+      `query($f:IssueFilter){issues(filter:$f first:250){nodes{id identifier title priority createdAt state{name type}labels{nodes{name}}}}}`,
+      {f:sourceFilter}
     );
     const sourceBugs=bugsData.issues.nodes;
 
-    // fetch bugs sent to SE — must be in SE team AND have Bug + Component: Support labels
-    const seFilter={
-      team:{id:{eq:SE_ID}},
-      and:[
-        {labels:{name:{eq:'Bug'}}},
-        {labels:{name:{eq:'Component: Support'}}}
-      ]
-    };
+    // 2. Bugs sent to SE (Bug + Component: Support in SE team)
+    const seFilter={team:{id:{eq:SE_ID}},and:[{labels:{name:{eq:'Bug'}}},{labels:{name:{eq:'Component: Support'}}}]};
     if(Object.keys(dateFilter).length) seFilter.createdAt=dateFilter;
-
     const seData=await linearGQL(
-      `query($filter:IssueFilter){issues(filter:$filter first:250){nodes{id identifier title priority createdAt state{name type}labels{nodes{name}}}}}`,
-      {filter:seFilter}
+      `query($f:IssueFilter){issues(filter:$f first:250){nodes{id identifier title priority createdAt state{name type}labels{nodes{name}}}}}`,
+      {f:seFilter}
     );
     const seBugs=seData.issues.nodes;
 
-    // escalated = SE bugs that also have the "Escalation" label
+    // 3. Escalated = SE bugs that also have Escalation label
     const escalatedBugs=seBugs.filter(i=>i.labels.nodes.some(l=>l.name==='Escalation'));
 
     const totalReported=sourceBugs.length;
@@ -309,37 +292,8 @@ async function loadDash(btn){
     const seRate=totalReported>0?Math.round(totalSE/totalReported*100):0;
     const escalationRate=totalSE>0?Math.round(totalEscalated/totalSE*100):0;
 
-    // fetch department labels (children of the Department parent label)
-    let deptLabels=[];
-    try{
-      const deptData=await linearGQL(`{
-        issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){
-          children{ nodes{ id name } }
-        }
-      }`);
-      deptLabels=deptData?.issueLabel?.children?.nodes||[];
-    }catch(e){
-      document.getElementById('dept-breakdown').innerHTML=`<div class="err">Could not load departments: ${e.message}</div>`;
-    }
-
-    // group source bugs by department label
-    const deptBuckets={};
-    let untaggedBugs=[];
-    for(const issue of sourceBugs){
-      const issueLabels=issue.labels.nodes.map(l=>l.name);
-      const matched=deptLabels.filter(d=>issueLabels.includes(d.name));
-      if(matched.length===0){
-        untaggedBugs.push(issue);
-      } else {
-        for(const d of matched){
-          if(!deptBuckets[d.name]) deptBuckets[d.name]=[];
-          deptBuckets[d.name].push(issue);
-        }
-      }
-    }
-
-    // status buckets across source bugs
-    const buckets={'In Progress':[],'In Review':[],'Done':[],'Cancelled':[],'Other':[]};
+    // 4. Status buckets from source bugs
+    const buckets={'In Progress':[],'In Review':[],'Done':[],'Cancelled':[]};
     for(const i of sourceBugs){
       const type=(i.state?.type||'').toLowerCase();
       const name=(i.state?.name||'').toLowerCase();
@@ -347,29 +301,18 @@ async function loadDash(btn){
       else if(type==='started'||name.includes('progress')) buckets['In Progress'].push(i);
       else if(type==='completed'||name==='done') buckets['Done'].push(i);
       else if(type==='cancelled') buckets['Cancelled'].push(i);
-      else buckets['Other'].push(i);
     }
 
-    // monthly trend
-    const monthlyReported={};
-    const monthlySE={};
-    const monthlyEscalated={};
-    for(const i of sourceBugs){
-      const k=monthKey(i.createdAt);
-      monthlyReported[k]=(monthlyReported[k]||0)+1;
-    }
-    for(const i of seBugs){
-      const k=monthKey(i.createdAt);
-      monthlySE[k]=(monthlySE[k]||0)+1;
-    }
-    for(const i of escalatedBugs){
-      const k=monthKey(i.createdAt);
-      monthlyEscalated[k]=(monthlyEscalated[k]||0)+1;
-    }
+    // 5. Monthly trend
+    const monthlyReported={},monthlySE={},monthlyEscalated={};
+    for(const i of sourceBugs){const k=monthKey(i.createdAt);monthlyReported[k]=(monthlyReported[k]||0)+1;}
+    for(const i of seBugs){const k=monthKey(i.createdAt);monthlySE[k]=(monthlySE[k]||0)+1;}
+    for(const i of escalatedBugs){const k=monthKey(i.createdAt);monthlyEscalated[k]=(monthlyEscalated[k]||0)+1;}
     const allMonths=[...new Set([...Object.keys(monthlyReported),...Object.keys(monthlySE),...Object.keys(monthlyEscalated)])].sort();
 
+    // scope + time
     const dateLabel=dateFrom&&dateTo?`${fmtDate(dateFrom)} – ${fmtDate(dateTo)}`:dateFrom?`from ${fmtDate(dateFrom)}`:dateTo?`until ${fmtDate(dateTo)}`:'all time';
-    document.getElementById('dash-scope').textContent='scope: Product + Requests · Bug label · SE team · Escalation label';
+    document.getElementById('dash-scope').textContent='scope: Product + Requests → Software Engineering';
     document.getElementById('dash-time').textContent=`${dateLabel} · snapshot ${new Date().toLocaleString()}`;
 
     // render metrics
@@ -395,59 +338,21 @@ async function loadDash(btn){
         <div class="metric-sub">status = Done</div>
       </div>`;
 
-    // render monthly trend chart
+    // render trend chart
     if(trendChart) trendChart.destroy();
-    const ctx=document.getElementById('trend-chart').getContext('2d');
-    trendChart=new Chart(ctx,{
+    trendChart=new Chart(document.getElementById('trend-chart').getContext('2d'),{
       type:'bar',
       data:{
         labels:allMonths.map(monthLabel),
         datasets:[
-          {
-            label:'Bugs reported',
-            data:allMonths.map(k=>monthlyReported[k]||0),
-            backgroundColor:'rgba(248,113,113,0.2)',
-            borderColor:'#f87171',
-            borderWidth:1,
-            borderRadius:3,
-            order:3
-          },
-          {
-            label:'Sent to SE',
-            data:allMonths.map(k=>monthlySE[k]||0),
-            type:'line',
-            borderColor:'#4f8ef7',
-            backgroundColor:'rgba(79,142,247,0.05)',
-            borderWidth:2,
-            pointRadius:4,
-            pointBackgroundColor:'#4f8ef7',
-            tension:0.3,
-            fill:false,
-            order:2
-          },
-          {
-            label:'Escalated',
-            data:allMonths.map(k=>monthlyEscalated[k]||0),
-            type:'line',
-            borderColor:'#a78bfa',
-            backgroundColor:'rgba(167,139,250,0.05)',
-            borderWidth:2,
-            pointRadius:4,
-            pointBackgroundColor:'#a78bfa',
-            tension:0.3,
-            fill:false,
-            order:1
-          }
+          {label:'Bugs reported',data:allMonths.map(k=>monthlyReported[k]||0),backgroundColor:'rgba(248,113,113,0.2)',borderColor:'#f87171',borderWidth:1,borderRadius:3,order:3},
+          {label:'Sent to SE',data:allMonths.map(k=>monthlySE[k]||0),type:'line',borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,0.05)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#fbbf24',tension:0.3,fill:false,order:2},
+          {label:'Escalated',data:allMonths.map(k=>monthlyEscalated[k]||0),type:'line',borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.05)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#a78bfa',tension:0.3,fill:false,order:1}
         ]
       },
       options:{
         responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{
-            display:true,
-            labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}
-          }
-        },
+        plugins:{legend:{display:true,labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}}},
         scales:{
           x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},autoSkip:false,maxRotation:45}},
           y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},stepSize:1}}
@@ -456,11 +361,9 @@ async function loadDash(btn){
     });
 
     // render status breakdown
-    const breakdownEl=document.getElementById('breakdown');
-    breakdownEl.innerHTML=STATUSES.map((s,idx)=>{
+    document.getElementById('breakdown').innerHTML=STATUSES.map((s,idx)=>{
       const list=buckets[s]||[];const c=list.length;
-      const col=SCOLORS[s];
-      const rowId=`issues-${idx}`;
+      const col=SCOLORS[s];const rowId=`issues-${idx}`;
       const rows=list.slice(0,10).map(i=>`<div class="issue-item">
         <span class="issue-id">${i.identifier}</span>
         <span class="issue-title">${i.title}</span>
@@ -474,51 +377,66 @@ async function loadDash(btn){
           ${c?`<button class="chevron-btn" onclick="toggleList('${rowId}',this)">▾</button>`:''}
         </div>
         <div class="status-card-count" style="color:${col}">${c}</div>
-        <div class="status-card-se" style="font-size:11px;color:var(--dim)">${totalReported>0?Math.round(c/totalReported*100):0}% of reported</div>
-        ${c?`<div class="issue-list" id="${rowId}">
-          ${rows}
-          ${more>0?`<div style="padding:4px 0;font-size:10px;color:var(--dim)">+ ${more} more</div>`:''}
-        </div>`:''}
+        <div style="font-size:11px;color:var(--dim);margin-top:4px">${totalReported>0?Math.round(c/totalReported*100):0}% of reported</div>
+        ${c?`<div class="issue-list" id="${rowId}">${rows}${more>0?`<div style="padding:4px 0;font-size:10px;color:var(--dim)">+ ${more} more</div>`:''}</div>`:''}
       </div>`;
     }).join('');
 
-    // render department breakdown
-    const deptEl=document.getElementById('dept-breakdown');
-    const sortedDepts=Object.entries(deptBuckets).sort((a,b)=>b[1].length-a[1].length);
-    const deptMax=sortedDepts.length?sortedDepts[0][1].length:1;
+    // 6. Department breakdown
+    try{
+      const deptData=await linearGQL(`{
+        issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){
+          children{ nodes{ id name } }
+        }
+      }`);
+      const deptLabels=deptData?.issueLabel?.children?.nodes||[];
 
-    let deptHTML='';
-    for(const [name,issues] of sortedDepts){
-      const pct=Math.round(issues.length/totalReported*100);
-      const barPct=Math.round(issues.length/deptMax*100);
-      deptHTML+=`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid var(--border)">
-        <span style="font-size:12px;color:var(--text);min-width:160px;flex-shrink:0">${name}</span>
-        <div style="flex:1;height:4px;background:var(--surface2);border-radius:99px;overflow:hidden">
-          <div style="width:${barPct}%;height:100%;background:var(--blue);border-radius:99px"></div>
-        </div>
-        <span style="font-size:13px;font-weight:500;font-family:var(--mono);min-width:28px;text-align:right;color:var(--blue)">${issues.length}</span>
-        <span style="font-size:11px;color:var(--dim);min-width:36px;text-align:right">${pct}%</span>
-      </div>`;
+      if(!deptLabels.length){
+        document.getElementById('dept-breakdown').innerHTML='<p style="font-size:13px;color:var(--dim)">No department labels found.</p>';
+      } else {
+        const deptBuckets={};
+        let untaggedCount=0;
+        for(const issue of sourceBugs){
+          const issueLabels=issue.labels.nodes.map(l=>l.name);
+          const matched=deptLabels.filter(d=>issueLabels.includes(d.name));
+          if(matched.length===0){
+            untaggedCount++;
+          } else {
+            for(const d of matched){
+              deptBuckets[d.name]=(deptBuckets[d.name]||0)+1;
+            }
+          }
+        }
+        const sorted=Object.entries(deptBuckets).sort((a,b)=>b[1]-a[1]);
+        const maxVal=sorted.length?sorted[0][1]:1;
+        let html=sorted.map(([name,count])=>{
+          const pct=totalReported>0?Math.round(count/totalReported*100):0;
+          const barPct=Math.round(count/maxVal*100);
+          return `<div class="dept-row">
+            <span class="dept-name">${name}</span>
+            <div class="dept-bar-wrap"><div class="dept-bar" style="width:${barPct}%"></div></div>
+            <span class="dept-count">${count}</span>
+            <span class="dept-pct">${pct}%</span>
+          </div>`;
+        }).join('');
+        if(untaggedCount){
+          const pct=totalReported>0?Math.round(untaggedCount/totalReported*100):0;
+          const barPct=Math.round(untaggedCount/maxVal*100);
+          html+=`<div class="dept-row">
+            <span class="dept-name" style="color:var(--dim)">Untagged</span>
+            <div class="dept-bar-wrap"><div class="dept-bar" style="width:${barPct}%;background:var(--dim)"></div></div>
+            <span class="dept-count" style="color:var(--dim)">${untaggedCount}</span>
+            <span class="dept-pct">${pct}%</span>
+          </div>`;
+        }
+        document.getElementById('dept-breakdown').innerHTML=html||'<p style="font-size:13px;color:var(--dim)">No department data found.</p>';
+      }
+    }catch(e){
+      document.getElementById('dept-breakdown').innerHTML=`<div class="err">Could not load departments: ${e.message}</div>`;
     }
-    if(untaggedBugs.length){
-      const pct=Math.round(untaggedBugs.length/totalReported*100);
-      const barPct=Math.round(untaggedBugs.length/deptMax*100);
-      deptHTML+=`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid var(--border)">
-        <span style="font-size:12px;color:var(--dim);min-width:160px;flex-shrink:0">Untagged</span>
-        <div style="flex:1;height:4px;background:var(--surface2);border-radius:99px;overflow:hidden">
-          <div style="width:${barPct}%;height:100%;background:var(--dim);border-radius:99px"></div>
-        </div>
-        <span style="font-size:13px;font-weight:500;font-family:var(--mono);min-width:28px;text-align:right;color:var(--dim)">${untaggedBugs.length}</span>
-        <span style="font-size:11px;color:var(--dim);min-width:36px;text-align:right">${pct}%</span>
-      </div>`;
-    }
-    if(!sortedDepts.length&&!untaggedBugs.length){
-      deptHTML='<p style="font-size:13px;color:var(--dim)">No department data found.</p>';
-    }
-    deptEl.innerHTML=`<div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">${deptHTML}</div>`;
 
-  }catch(e){setErr('err-dash','Failed to load: '+e.message)}
-  finally{const rb=document.getElementById('refresh-btn');if(rb){rb.innerHTML='↻ Refresh';rb.disabled=false}}
+  }catch(e){setErr('err-dash','Failed to load: '+e.message);}
+  finally{const rb=document.getElementById('refresh-btn');if(rb){rb.innerHTML='↻ Refresh';rb.disabled=false;}}
 }
 
 function toggleList(id,btn){
