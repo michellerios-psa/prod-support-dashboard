@@ -310,12 +310,17 @@ async function loadDash(btn){
     const escalationRate=totalSE>0?Math.round(totalEscalated/totalSE*100):0;
 
     // fetch department labels (children of the Department parent label)
-    const deptData=await linearGQL(`{
-      issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){
-        children{ nodes{ id name } }
-      }
-    }`);
-    const deptLabels=deptData.issueLabel.children.nodes;
+    let deptLabels=[];
+    try{
+      const deptData=await linearGQL(`{
+        issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){
+          children{ nodes{ id name } }
+        }
+      }`);
+      deptLabels=deptData?.issueLabel?.children?.nodes||[];
+    }catch(e){
+      document.getElementById('dept-breakdown').innerHTML=`<div class="err">Could not load departments: ${e.message}</div>`;
+    }
 
     // group source bugs by department label
     const deptBuckets={};
@@ -382,7 +387,7 @@ async function loadDash(btn){
       <div class="metric">
         <div class="metric-val" style="color:var(--purple)">${totalEscalated}</div>
         <div class="metric-lbl">Escalated</div>
-        <div class="metric-sub">${escalationRate}% of SE bugs</div>
+        <div class="metric-sub">${totalEscalated}/${totalSE} sent to SE</div>
       </div>
       <div class="metric">
         <div class="metric-val" style="color:var(--green)">${buckets['Done'].length}</div>
