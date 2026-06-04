@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Prod Support — Bug Tracker</title>
+<title>Product Support Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -101,7 +101,7 @@
   <header>
     <div class="logo">
       <div class="logo-dot"></div>
-      <span class="logo-text">Prod Support — Bug Tracker</span>
+      <span class="logo-text">Product Support Dashboard</span>
     </div>
     <div id="header-right" style="display:flex;gap:8px"></div>
   </header>
@@ -196,8 +196,8 @@ const SOURCE_TEAMS = [PRODUCT_ID, REQUESTS_ID];
 
 let apiKey = '';
 let trendChart = null;
-const STATUSES = ['In Progress','In Review','Done','Cancelled'];
-const SCOLORS  = {'In Progress':'#4f8ef7','In Review':'#a78bfa','Done':'#4ade80','Cancelled':'#6b7280'};
+const STATUSES = ['In Progress','In Review','Done / Resolved'];
+const SCOLORS  = {'In Progress':'#4f8ef7','In Review':'#a78bfa','Done / Resolved':'#4ade80'};
 const PRIL     = {1:'Urgent',2:'High',3:'Medium',4:'Low'};
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -296,16 +296,25 @@ async function loadDash(btn){
     const seRate=totalReported>0?Math.round(totalSE/totalReported*100):0;
     const escalationRate=totalSE>0?Math.round(totalEscalated/totalSE*100):0;
 
-    // 4. Status buckets from source bugs
-    const buckets={'In Progress':[],'In Review':[],'Done':[],'Cancelled':[]};
+    // 4. Status buckets from source bugs (Product + Requests)
+    const buckets={'In Progress':[],'In Review':[],'Done / Resolved':[]};
     for(const i of sourceBugs){
       const type=(i.state?.type||'').toLowerCase();
       const name=(i.state?.name||'').toLowerCase();
       if(name.includes('review')) buckets['In Review'].push(i);
       else if(type==='started'||name.includes('progress')) buckets['In Progress'].push(i);
-      else if(type==='completed'||name==='done') buckets['Done'].push(i);
-      else if(type==='cancelled') buckets['Cancelled'].push(i);
+      else if(type==='completed'||name==='done'||name==='resolved') buckets['Done / Resolved'].push(i);
+      
     }
+
+    // resolved counts
+    const resolvedSource=buckets['Done / Resolved'].length;
+    const resolvedSE=seBugs.filter(i=>{
+      const name=(i.state?.name||'').toLowerCase();
+      const type=(i.state?.type||'').toLowerCase();
+      return name==='deployed'||name.includes('deploy')||type==='completed';
+    }).length;
+    const totalResolved=resolvedSource+resolvedSE;
 
     // 5. Monthly trend
     const monthlyReported={},monthlySE={},monthlyEscalated={};
@@ -337,9 +346,12 @@ async function loadDash(btn){
         <div class="metric-sub">${totalEscalated}/${totalSE} sent to SE</div>
       </div>
       <div class="metric">
-        <div class="metric-val" style="color:var(--green)">${buckets['Done'].length}</div>
+        <div class="metric-val" style="color:var(--green)">${totalResolved}</div>
         <div class="metric-lbl">Resolved</div>
-        <div class="metric-sub">status = Done</div>
+        <div class="metric-sub" style="line-height:1.6">
+          ${resolvedSource} Done/Resolved (P+R)<br/>
+          ${resolvedSE} Deployed (SE)
+        </div>
       </div>`;
 
     // render trend chart — grouped bar
