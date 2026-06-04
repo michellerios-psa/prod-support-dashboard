@@ -61,7 +61,7 @@
   .metric-val { font-size: 32px; font-weight: 300; font-family: var(--mono); margin-bottom: 2px; }
   .metric-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
   .metric-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
-  .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0; }
   .status-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; }
   .status-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
   .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -167,17 +167,21 @@
     <div class="divider"></div>
 
     <div class="chart-card">
-      <div class="chart-title">Monthly bug trend</div>
+      <div class="chart-title">Monthly Bug Trend</div>
       <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
     </div>
 
     <div class="divider"></div>
-    <div class="section-title">Bug status breakdown</div>
-    <div class="breakdown-grid" id="breakdown"></div>
-
-    <div class="divider"></div>
-    <div class="section-title">Bugs by department</div>
-    <div class="card" id="dept-breakdown"><span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading departments...</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <div>
+        <div class="section-title">Bug Status Breakdown</div>
+        <div id="breakdown"></div>
+      </div>
+      <div>
+        <div class="section-title">Bugs By Department</div>
+        <div class="card" id="dept-breakdown"><span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading departments...</span></div>
+      </div>
+    </div>
 
     <div id="err-dash"></div>
   </div>
@@ -319,12 +323,12 @@ async function loadDash(btn){
     document.getElementById('metrics').innerHTML=`
       <div class="metric">
         <div class="metric-val" style="color:var(--red)">${totalReported}</div>
-        <div class="metric-lbl">Bugs reported</div>
+        <div class="metric-lbl">Bugs Reported</div>
         <div class="metric-sub">Product + Requests</div>
       </div>
       <div class="metric">
         <div class="metric-val" style="color:var(--amber)">${totalSE}</div>
-        <div class="metric-lbl">Sent to SE</div>
+        <div class="metric-lbl">Sent To SE</div>
         <div class="metric-sub">${seRate}% of reported</div>
       </div>
       <div class="metric">
@@ -338,24 +342,73 @@ async function loadDash(btn){
         <div class="metric-sub">status = Done</div>
       </div>`;
 
-    // render trend chart
+    // render trend chart — grouped bar
     if(trendChart) trendChart.destroy();
     trendChart=new Chart(document.getElementById('trend-chart').getContext('2d'),{
       type:'bar',
       data:{
         labels:allMonths.map(monthLabel),
         datasets:[
-          {label:'Bugs reported',data:allMonths.map(k=>monthlyReported[k]||0),backgroundColor:'rgba(248,113,113,0.2)',borderColor:'#f87171',borderWidth:1,borderRadius:3,order:3},
-          {label:'Sent to SE',data:allMonths.map(k=>monthlySE[k]||0),type:'line',borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,0.05)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#fbbf24',tension:0.3,fill:false,order:2},
-          {label:'Escalated',data:allMonths.map(k=>monthlyEscalated[k]||0),type:'line',borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.05)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#a78bfa',tension:0.3,fill:false,order:1}
+          {
+            label:'Bugs Reported',
+            data:allMonths.map(k=>monthlyReported[k]||0),
+            backgroundColor:'rgba(248,113,113,0.7)',
+            borderColor:'#f87171',
+            borderWidth:1,
+            borderRadius:4,
+          },
+          {
+            label:'Sent To SE',
+            data:allMonths.map(k=>monthlySE[k]||0),
+            backgroundColor:'rgba(251,191,36,0.7)',
+            borderColor:'#fbbf24',
+            borderWidth:1,
+            borderRadius:4,
+          },
+          {
+            label:'Escalated',
+            data:allMonths.map(k=>monthlyEscalated[k]||0),
+            backgroundColor:'rgba(167,139,250,0.7)',
+            borderColor:'#a78bfa',
+            borderWidth:1,
+            borderRadius:4,
+          }
         ]
       },
       options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:true,labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}}},
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{
+            display:true,
+            labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}
+          },
+          tooltip:{
+            callbacks:{
+              afterBody:function(items){
+                const idx=items[0].dataIndex;
+                const k=allMonths[idx];
+                const r=monthlyReported[k]||0;
+                const s=monthlySE[k]||0;
+                const e=monthlyEscalated[k]||0;
+                const seRate=r>0?Math.round(s/r*100):0;
+                const escRate=s>0?Math.round(e/s*100):0;
+                return [`SE rate: ${seRate}%`, `Escalation rate: ${escRate}%`];
+              }
+            }
+          }
+        },
         scales:{
-          x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},autoSkip:false,maxRotation:45}},
-          y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},stepSize:1}}
+          x:{
+            grouped:true,
+            grid:{color:'rgba(255,255,255,0.04)'},
+            ticks:{color:'#888894',font:{size:11},autoSkip:false,maxRotation:45}
+          },
+          y:{
+            beginAtZero:true,
+            grid:{color:'rgba(255,255,255,0.04)'},
+            ticks:{color:'#888894',font:{size:11},stepSize:1}
+          }
         }
       }
     });
