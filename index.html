@@ -541,7 +541,11 @@ function generateSummary(sourceBugs, seBugs, escalatedBugs, dateContext, tool, d
     'same','different','multiple','single','current','previous','next','last','first','second',
     'third','following','related','associated','specific','general','various','other','another',
     'each','every','both','either','neither','between','through','within','without','against',
-    'across','around','below','above','under','over','inside','outside','along','since','until'
+    'across','around','below','above','under','over','inside','outside','along','since','until',
+    'please','kindly','thanks','thank','hello','receiver','sender','recipient','person','people',
+    'place','thing','things','something','anything','everything','nothing','someone','anyone',
+    'everyone','such','much','many','very','really','quite','just','only','even','also','already',
+    'always','never','often','sometimes','usually','normally','currently','recently','quickly'
   ]);
   const wordCount={};
   for(const i of sourceBugs){
@@ -552,7 +556,8 @@ function generateSummary(sourceBugs, seBugs, escalatedBugs, dateContext, tool, d
       }
     }
   }
-  const topWords=Object.entries(wordCount).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([w])=>w);
+  // only include words that appear more than once to avoid one-off noise
+  const topWords=Object.entries(wordCount).filter(([w,c])=>c>1).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([w])=>w);
 
   // top departments
   const deptCounts={};
