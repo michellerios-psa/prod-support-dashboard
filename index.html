@@ -22,7 +22,7 @@
   }
   body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
   .app { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
   .logo { display: flex; align-items: center; gap: 10px; }
   .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
   .logo-text { font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -56,13 +56,39 @@
   .err { background: var(--red-dim); border: 0.5px solid rgba(248,113,113,0.25); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 1rem; }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: -2px; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+
+  /* tool toggle */
+  .tool-toggle { display: flex; gap: 4px; background: var(--surface2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 3px; margin-bottom: 1.5rem; width: fit-content; }
+  .tool-btn { font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .tool-btn:hover { color: var(--text); background: none; border: none; }
+  .tool-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.4); border: none; }
+
+  /* metrics */
+  .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
   .metric { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
-  .metric-val { font-size: 32px; font-weight: 300; font-family: var(--mono); margin-bottom: 2px; }
+  .metric-val { font-size: 30px; font-weight: 300; font-family: var(--mono); margin-bottom: 2px; }
   .metric-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-  .metric-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
-  .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0; }
-  .status-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+  .metric-sub { font-size: 11px; color: var(--dim); margin-top: 4px; line-height: 1.6; }
+
+  /* AI summary */
+  .ai-summary-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
+  .ai-summary-header { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; cursor: pointer; user-select: none; }
+  .ai-summary-header:hover { background: var(--surface2); }
+  .ai-summary-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
+  .ai-badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); font-weight: 500; }
+  .ai-chevron { font-size: 12px; color: var(--dim); transition: transform 0.2s; }
+  .ai-chevron.open { transform: rotate(180deg); }
+  .ai-summary-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .ai-summary-body.open { max-height: 500px; }
+  .ai-summary-content { padding: 0 1.25rem 1.25rem; font-size: 13px; color: var(--muted); line-height: 1.8; border-top: 0.5px solid var(--border); padding-top: 1rem; }
+
+  /* narrative */
+  .narrative { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 13px; color: var(--muted); line-height: 1.8; }
+
+  /* status + dept side by side */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
+  .status-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 8px; }
   .status-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
   .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .status-card-name { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; flex: 1; }
@@ -79,21 +105,25 @@
   .pri-2 { background: rgba(251,191,36,0.1); color: var(--amber); }
   .pri-3 { background: var(--blue-dim); color: var(--blue); }
   .pri-4 { background: var(--gray-dim); color: var(--gray); }
+
+  /* dept */
+  .dept-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+  .dept-row:last-child { border-bottom: none; }
+  .dept-name { font-size: 12px; color: var(--text); min-width: 140px; flex-shrink: 0; }
+  .dept-bar-wrap { flex: 1; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .dept-bar { height: 100%; border-radius: 99px; background: var(--blue); }
+  .dept-count { font-size: 13px; font-weight: 500; font-family: var(--mono); min-width: 24px; text-align: right; color: var(--blue); }
+  .dept-pct { font-size: 11px; color: var(--dim); min-width: 32px; text-align: right; }
+
+  /* chart */
   .chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
   .chart-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
   .chart-wrap { position: relative; height: 240px; }
-  .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
+
+  .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
   .scope-line { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-bottom: 3px; }
   .time-line { font-size: 11px; color: var(--dim); }
   .divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
-  .section-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
-  .dept-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
-  .dept-row:last-child { border-bottom: none; }
-  .dept-name { font-size: 12px; color: var(--text); min-width: 180px; flex-shrink: 0; }
-  .dept-bar-wrap { flex: 1; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
-  .dept-bar { height: 100%; border-radius: 99px; background: var(--blue); }
-  .dept-count { font-size: 13px; font-weight: 500; font-family: var(--mono); min-width: 28px; text-align: right; color: var(--blue); }
-  .dept-pct { font-size: 11px; color: var(--dim); min-width: 36px; text-align: right; }
 </style>
 </head>
 <body>
@@ -126,15 +156,15 @@
   <!-- FILTER -->
   <div id="s-filter" class="screen">
     <div class="card">
-      <div class="lbl">Date range</div>
+      <div class="lbl">Date Range</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Tracking bugs across <strong style="color:var(--text)">Product</strong> and <strong style="color:var(--text)">Requests</strong> teams, and escalations to <strong style="color:var(--text)">Software Engineering</strong>.</p>
       <div class="quick-dates">
-        <button class="qd" onclick="setQuick(30)">Last 30 days</button>
-        <button class="qd" onclick="setQuick(60)">Last 60 days</button>
-        <button class="qd" onclick="setQuick(90)">Last 90 days</button>
-        <button class="qd" onclick="setQuick(180)">Last 6 months</button>
-        <button class="qd" onclick="setQuick(365)">Last year</button>
-        <button class="qd" onclick="setQuick(0)">All time</button>
+        <button class="qd" onclick="setQuick(30)">Last 30 Days</button>
+        <button class="qd" onclick="setQuick(60)">Last 60 Days</button>
+        <button class="qd" onclick="setQuick(90)">Last 90 Days</button>
+        <button class="qd" onclick="setQuick(180)">Last 6 Months</button>
+        <button class="qd" onclick="setQuick(365)">Last Year</button>
+        <button class="qd" onclick="setQuick(0)">All Time</button>
       </div>
       <div class="date-row">
         <div class="date-field"><label>From</label><input type="date" id="date-from"/></div>
@@ -142,8 +172,8 @@
       </div>
       <p class="hint">Leave blank for all time.</p>
       <div style="display:flex;gap:8px;margin-top:1.25rem">
-        <button class="primary" onclick="loadDash(this)">Load dashboard</button>
-        <button onclick="resetAll()">Start over</button>
+        <button class="primary" onclick="loadDash(this)">Load Dashboard</button>
+        <button onclick="resetAll()">Start Over</button>
       </div>
       <div id="err-filter"></div>
     </div>
@@ -158,28 +188,55 @@
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="loadDash(this)" id="refresh-btn">↻ Refresh</button>
-        <button onclick="goFilter()">Edit filters</button>
+        <button onclick="goFilter()">Edit Filters</button>
       </div>
     </div>
 
+    <!-- tool toggle -->
+    <div class="tool-toggle">
+      <button class="tool-btn active" onclick="setTool('all',this)">All</button>
+      <button class="tool-btn" onclick="setTool('Rhapsody',this)">Rhapsody</button>
+      <button class="tool-btn" onclick="setTool('Ironhide',this)">Ironhide</button>
+    </div>
+
+    <!-- metrics -->
     <div class="metric-row" id="metrics"></div>
 
-    <div class="divider"></div>
+    <!-- narrative -->
+    <div class="narrative" id="narrative"></div>
 
+    <!-- AI summary -->
+    <div class="ai-summary-wrap">
+      <div class="ai-summary-header" onclick="toggleAI()">
+        <div class="ai-summary-title">
+          <span>AI Summary</span>
+          <span class="ai-badge">AI</span>
+          <span id="ai-status" style="font-size:11px;color:var(--dim);font-weight:400"></span>
+        </div>
+        <span class="ai-chevron" id="ai-chevron">▾</span>
+      </div>
+      <div class="ai-summary-body" id="ai-body">
+        <div class="ai-summary-content" id="ai-content"></div>
+      </div>
+    </div>
+
+    <!-- chart -->
     <div class="chart-card">
       <div class="chart-title">Monthly Bug Trend</div>
       <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
     </div>
 
     <div class="divider"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+
+    <!-- status + dept -->
+    <div class="two-col">
       <div>
         <div class="section-title">Bug Status Breakdown</div>
         <div id="breakdown"></div>
       </div>
       <div>
         <div class="section-title">Bugs By Department</div>
-        <div class="card" id="dept-breakdown"><span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading departments...</span></div>
+        <div class="card" id="dept-breakdown"><span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading...</span></div>
       </div>
     </div>
 
@@ -188,30 +245,58 @@
 </div>
 
 <script>
-const PRODUCT_ID  = '8f171754-e8ca-48a5-a8fd-e0619e11e327';
-const REQUESTS_ID = '3ec72d19-8f91-41f8-aec9-f0afa528fe2e';
-const SE_ID       = '2c275f09-027b-4954-8b73-317ad7951996';
+const PRODUCT_ID    = '8f171754-e8ca-48a5-a8fd-e0619e11e327';
+const REQUESTS_ID   = '3ec72d19-8f91-41f8-aec9-f0afa528fe2e';
+const SE_ID         = '2c275f09-027b-4954-8b73-317ad7951996';
 const DEPT_LABEL_ID = '19c74492-713c-48be-b714-3859d663fdfb';
-const SOURCE_TEAMS = [PRODUCT_ID, REQUESTS_ID];
+const SOURCE_TEAMS  = [PRODUCT_ID, REQUESTS_ID];
 
-let apiKey = '';
-let trendChart = null;
-const STATUSES = ['In Progress','In Review','Done / Resolved'];
-const SCOLORS  = {'In Progress':'#4f8ef7','In Review':'#a78bfa','Done / Resolved':'#4ade80'};
+// exact status name → bucket mapping
+const STATUS_MAP = {
+  // Open
+  'waiting on reply':'Open','to do':'Open','selected for development':'Open',
+  // In Progress
+  'in progress':'In Progress','uat':'In Progress','code review':'In Progress',
+  'acceptance':'In Progress','uat (staging)':'In Progress','uat (product review)':'In Progress',
+  'ready for release':'In Progress',
+  // In Review
+  'in review':'In Review',
+  // Resolved
+  'done':'Resolved','resolved':'Resolved','deployed':'Resolved'
+};
+const STATUSES = ['Open','In Progress','In Review','Resolved'];
+const SCOLORS  = {'Open':'#6b7280','In Progress':'#4f8ef7','In Review':'#a78bfa','Resolved':'#4ade80'};
 const PRIL     = {1:'Urgent',2:'High',3:'Medium',4:'Low'};
+
+let apiKey='', trendChart=null, activeTool='all';
+let lastSourceBugs=[], lastSeBugs=[], lastDeptLabels=[];
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function setErr(id,msg){document.getElementById(id).innerHTML=msg?`<div class="err">${msg}</div>`:'';}
 function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 function monthKey(iso){const d=new Date(iso);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function monthLabel(k){const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'numeric'});}
+function bucketStatus(stateName){return STATUS_MAP[(stateName||'').toLowerCase()]||null;}
 
 function setQuick(days){
   if(days===0){document.getElementById('date-from').value='';document.getElementById('date-to').value='';return;}
-  const to=new Date(),from=new Date(to);
-  from.setDate(from.getDate()-days);
+  const to=new Date(),from=new Date(to);from.setDate(from.getDate()-days);
   document.getElementById('date-from').value=from.toISOString().slice(0,10);
   document.getElementById('date-to').value=to.toISOString().slice(0,10);
+}
+
+function setTool(tool, btn){
+  activeTool=tool;
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard(lastSourceBugs, lastSeBugs, lastDeptLabels);
+}
+
+function toggleAI(){
+  const body=document.getElementById('ai-body');
+  const chev=document.getElementById('ai-chevron');
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
 }
 
 async function linearGQL(query,variables={}){
@@ -226,10 +311,7 @@ async function linearGQL(query,variables={}){
   return json.data;
 }
 
-// auto-fill saved key
-(function(){
-  try{const s=localStorage.getItem('linear_api_key');if(s)document.getElementById('api-input').value=s;}catch(e){}
-})();
+(function(){try{const s=localStorage.getItem('linear_api_key');if(s)document.getElementById('api-input').value=s;}catch(e){}})();
 
 async function connectLinear(btn){
   const raw=document.getElementById('api-input').value;
@@ -253,6 +335,225 @@ async function connectLinear(btn){
 
 function goFilter(){show('s-filter');}
 
+function filterByTool(bugs){
+  if(activeTool==='all') return bugs;
+  return bugs.filter(i=>i.labels.nodes.some(l=>l.name===activeTool));
+}
+
+function renderDashboard(sourceBugs, seBugs, deptLabels){
+  const filtered=filterByTool(sourceBugs);
+  const filteredSE=filterByTool(seBugs);
+  const escalatedBugs=filteredSE.filter(i=>i.labels.nodes.some(l=>l.name==='Escalation'));
+
+  const totalReported=filtered.length;
+  const totalSE=filteredSE.length;
+  const totalEscalated=escalatedBugs.length;
+  const seRate=totalReported>0?Math.round(totalSE/totalReported*100):0;
+  const escalationRate=totalSE>0?Math.round(totalEscalated/totalSE*100):0;
+
+  // status buckets
+  const buckets={};
+  STATUSES.forEach(s=>buckets[s]=[]);
+  for(const i of filtered){
+    const b=bucketStatus(i.state?.name);
+    if(b) buckets[b].push(i);
+  }
+
+  // resolved counts
+  const resolvedSource=buckets['Resolved']?.length||0;
+  const resolvedSE=filteredSE.filter(i=>bucketStatus(i.state?.name)==='Resolved').length;
+  const totalResolved=resolvedSource+resolvedSE;
+
+  // avg resolution time
+  const resolvedBugs=filtered.filter(i=>bucketStatus(i.state?.name)==='Resolved');
+  let avgResolutionDays='—';
+  if(resolvedBugs.length){
+    const total=resolvedBugs.reduce((s,i)=>s+Math.max(0,Math.round((new Date(i.updatedAt||i.createdAt)-new Date(i.createdAt))/(1000*60*60*24))),0);
+    avgResolutionDays=Math.round(total/resolvedBugs.length);
+  }
+
+  // monthly trend
+  const monthlyReported={},monthlySE={},monthlyEscalated={};
+  for(const i of filtered){const k=monthKey(i.createdAt);monthlyReported[k]=(monthlyReported[k]||0)+1;}
+  for(const i of filteredSE){const k=monthKey(i.createdAt);monthlySE[k]=(monthlySE[k]||0)+1;}
+  for(const i of escalatedBugs){const k=monthKey(i.createdAt);monthlyEscalated[k]=(monthlyEscalated[k]||0)+1;}
+  const allMonths=[...new Set([...Object.keys(monthlyReported),...Object.keys(monthlySE),...Object.keys(monthlyEscalated)])].sort();
+
+  const toolLabel=activeTool==='all'?'All Tools':activeTool;
+  document.getElementById('dash-scope').textContent=`scope: Product + Requests → SE · ${toolLabel}`;
+
+  // metrics
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric">
+      <div class="metric-val" style="color:var(--red)">${totalReported}</div>
+      <div class="metric-lbl">Bugs Reported</div>
+      <div class="metric-sub">Product + Requests</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" style="color:var(--amber)">${totalSE}</div>
+      <div class="metric-lbl">Sent To SE</div>
+      <div class="metric-sub">${seRate}% of reported</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" style="color:var(--purple)">${totalEscalated}</div>
+      <div class="metric-lbl">Escalated</div>
+      <div class="metric-sub">${totalEscalated}/${totalSE} sent to SE</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" style="color:var(--green)">${totalResolved}</div>
+      <div class="metric-lbl">Resolved</div>
+      <div class="metric-sub">${resolvedSource} Done/Resolved (P+R)<br/>${resolvedSE} Deployed (SE)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" style="color:var(--blue)">${avgResolutionDays}</div>
+      <div class="metric-lbl">Avg Resolution</div>
+      <div class="metric-sub">days to resolved</div>
+    </div>`;
+
+  // narrative
+  const openCount=(buckets['Open']?.length||0)+(buckets['In Progress']?.length||0)+(buckets['In Review']?.length||0);
+  const dateFrom=document.getElementById('date-from').value;
+  const dateTo=document.getElementById('date-to').value;
+  const dateContext=dateFrom&&dateTo?`Between ${fmtDate(dateFrom)} and ${fmtDate(dateTo)}`:dateFrom?`From ${fmtDate(dateFrom)}`:dateTo?`Until ${fmtDate(dateTo)}`:'Across all time';
+  document.getElementById('narrative').innerHTML=`
+    <strong style="color:var(--text)">${dateContext}</strong>${activeTool!=='all'?` for <strong style="color:var(--text)">${activeTool}</strong>`:''}, 
+    <strong style="color:var(--red)">${totalReported} bug${totalReported!==1?'s':''}</strong> were reported across Product and Requests.
+    Of those, <strong style="color:var(--amber)">${totalSE}</strong> were sent to Software Engineering
+    and <strong style="color:var(--purple)">${totalEscalated}</strong> were escalated
+    (${escalationRate}% of SE bugs).
+    <strong style="color:var(--green)">${totalResolved}</strong> bug${totalResolved!==1?'s have':' has'} been resolved
+    ${avgResolutionDays!=='—'?`with an average resolution time of <strong style="color:var(--blue)">${avgResolutionDays} day${avgResolutionDays!==1?'s':''}</strong>`:''}
+    and <strong style="color:var(--text)">${openCount}</strong> remain${openCount===1?'s':''} open.`;
+
+  // chart
+  if(trendChart) trendChart.destroy();
+  trendChart=new Chart(document.getElementById('trend-chart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:allMonths.map(monthLabel),
+      datasets:[
+        {label:'Bugs Reported',data:allMonths.map(k=>monthlyReported[k]||0),backgroundColor:'rgba(248,113,113,0.7)',borderColor:'#f87171',borderWidth:1,borderRadius:4},
+        {label:'Sent To SE',data:allMonths.map(k=>monthlySE[k]||0),backgroundColor:'rgba(251,191,36,0.7)',borderColor:'#fbbf24',borderWidth:1,borderRadius:4},
+        {label:'Escalated',data:allMonths.map(k=>monthlyEscalated[k]||0),backgroundColor:'rgba(167,139,250,0.7)',borderColor:'#a78bfa',borderWidth:1,borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}},
+        tooltip:{callbacks:{afterBody:function(items){
+          const k=allMonths[items[0].dataIndex];
+          const r=monthlyReported[k]||0,s=monthlySE[k]||0,e=monthlyEscalated[k]||0;
+          return[`SE Rate: ${r>0?Math.round(s/r*100):0}%`,`Escalation Rate: ${s>0?Math.round(e/s*100):0}%`];
+        }}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},autoSkip:false,maxRotation:45}},
+        y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#888894',font:{size:11},stepSize:1}}
+      }
+    }
+  });
+
+  // status breakdown
+  document.getElementById('breakdown').innerHTML=STATUSES.filter(s=>s!=='Resolved'?true:true).map((s,idx)=>{
+    const list=buckets[s]||[];const c=list.length;
+    const col=SCOLORS[s];const rowId=`issues-${idx}`;
+    const rows=list.slice(0,10).map(i=>`<div class="issue-item">
+      <span class="issue-id">${i.identifier}</span>
+      <span class="issue-title">${i.title}</span>
+      <span class="pri pri-${i.priority||4}">${PRIL[i.priority]||'None'}</span>
+    </div>`).join('');
+    const more=c-10;
+    return `<div class="status-card">
+      <div class="status-card-header">
+        <span class="dot" style="background:${col}"></span>
+        <span class="status-card-name">${s}</span>
+        ${c?`<button class="chevron-btn" onclick="toggleList('${rowId}',this)">▾</button>`:''}
+      </div>
+      <div class="status-card-count" style="color:${col}">${c}</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">${totalReported>0?Math.round(c/totalReported*100):0}% of reported</div>
+      ${c?`<div class="issue-list" id="${rowId}">${rows}${more>0?`<div style="padding:4px 0;font-size:10px;color:var(--dim)">+ ${more} more</div>`:''}</div>`:''}
+    </div>`;
+  }).join('');
+
+  // dept breakdown
+  if(deptLabels.length){
+    const deptBuckets={};let untaggedCount=0;
+    for(const issue of filtered){
+      const issueLabels=issue.labels.nodes.map(l=>l.name);
+      const matched=deptLabels.filter(d=>issueLabels.includes(d.name));
+      if(!matched.length){untaggedCount++;}
+      else{for(const d of matched){deptBuckets[d.name]=(deptBuckets[d.name]||0)+1;}}
+    }
+    const sorted=Object.entries(deptBuckets).sort((a,b)=>b[1]-a[1]);
+    const maxVal=sorted.length?sorted[0][1]:1;
+    let html=sorted.map(([name,count])=>{
+      const pct=totalReported>0?Math.round(count/totalReported*100):0;
+      return `<div class="dept-row">
+        <span class="dept-name">${name}</span>
+        <div class="dept-bar-wrap"><div class="dept-bar" style="width:${Math.round(count/maxVal*100)}%"></div></div>
+        <span class="dept-count">${count}</span>
+        <span class="dept-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+    if(untaggedCount){
+      html+=`<div class="dept-row">
+        <span class="dept-name" style="color:var(--dim)">Untagged</span>
+        <div class="dept-bar-wrap"><div class="dept-bar" style="width:${Math.round(untaggedCount/maxVal*100)}%;background:var(--dim)"></div></div>
+        <span class="dept-count" style="color:var(--dim)">${untaggedCount}</span>
+        <span class="dept-pct">${totalReported>0?Math.round(untaggedCount/totalReported*100):0}%</span>
+      </div>`;
+    }
+    document.getElementById('dept-breakdown').innerHTML=html||'<p style="font-size:13px;color:var(--dim)">No department data found.</p>';
+  }
+
+  // AI summary
+  generateAISummary(filtered, filteredSE, escalatedBugs, dateContext, activeTool);
+}
+
+async function generateAISummary(sourceBugs, seBugs, escalatedBugs, dateContext, tool){
+  const statusEl=document.getElementById('ai-status');
+  const contentEl=document.getElementById('ai-content');
+  statusEl.textContent='Generating…';
+  contentEl.innerHTML='<span class="spinner"></span> Analyzing bug themes...';
+
+  const titles=sourceBugs.map(i=>i.title).slice(0,80);
+  const labels=[...new Set(sourceBugs.flatMap(i=>i.labels.nodes.map(l=>l.name)))].filter(l=>!['Bug','Escalation','Component: Support','Rhapsody','Ironhide'].includes(l));
+  const toolContext=tool==='all'?'all tools':tool;
+
+  const prompt=`You are a product support analyst. Based on the following bug report titles and labels from ${dateContext.toLowerCase()} for ${toolContext}, write a concise 3-4 sentence plain-language summary that:
+1. Identifies the main themes or topic areas these bugs cluster around (e.g. billing, enrollment, payments)
+2. Notes any patterns in what types of issues were escalated
+3. Is written so a non-technical stakeholder can immediately understand what the support team has been dealing with
+
+Bug titles:
+${titles.join('\n')}
+
+Labels applied (excluding system labels):
+${labels.slice(0,30).join(', ')}
+
+Write only the summary, no headers or bullet points.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Could not generate summary.';
+    contentEl.innerHTML=text.replace(/\n/g,'<br/>');
+    statusEl.textContent='';
+  }catch(e){
+    contentEl.innerHTML='Could not generate AI summary.';
+    statusEl.textContent='';
+  }
+}
+
 async function loadDash(btn){
   setErr('err-filter','');show('s-dash');
   const rb=document.getElementById('refresh-btn');
@@ -260,7 +561,10 @@ async function loadDash(btn){
   setErr('err-dash','');
   document.getElementById('metrics').innerHTML='<div style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading…</div>';
   document.getElementById('breakdown').innerHTML='';
-  document.getElementById('dept-breakdown').innerHTML='<span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading departments...</span>';
+  document.getElementById('dept-breakdown').innerHTML='<span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading...</span>';
+  document.getElementById('narrative').innerHTML='';
+  document.getElementById('ai-content').innerHTML='';
+  document.getElementById('ai-status').textContent='';
 
   try{
     const dateFrom=document.getElementById('date-from').value;
@@ -269,236 +573,36 @@ async function loadDash(btn){
     if(dateFrom) dateFilter.gte=new Date(dateFrom).toISOString();
     if(dateTo){const d=new Date(dateTo);d.setHours(23,59,59,999);dateFilter.lte=d.toISOString();}
 
-    // 1. Bugs in Product + Requests
+    // source bugs
     const sourceFilter={team:{id:{in:SOURCE_TEAMS}},labels:{name:{eq:'Bug'}}};
     if(Object.keys(dateFilter).length) sourceFilter.createdAt=dateFilter;
     const bugsData=await linearGQL(
-      `query($f:IssueFilter){issues(filter:$f first:250){nodes{id identifier title priority createdAt state{name type}labels{nodes{name}}}}}`,
+      `query($f:IssueFilter){issues(filter:$f first:250){nodes{id identifier title priority createdAt updatedAt state{name type}labels{nodes{name}}}}}`,
       {f:sourceFilter}
     );
-    const sourceBugs=bugsData.issues.nodes;
+    lastSourceBugs=bugsData.issues.nodes;
 
-    // 2. Bugs sent to SE (Bug + Component: Support in SE team)
+    // SE bugs
     const seFilter={team:{id:{eq:SE_ID}},and:[{labels:{name:{eq:'Bug'}}},{labels:{name:{eq:'Component: Support'}}}]};
     if(Object.keys(dateFilter).length) seFilter.createdAt=dateFilter;
     const seData=await linearGQL(
-      `query($f:IssueFilter){issues(filter:$f first:250){nodes{id identifier title priority createdAt state{name type}labels{nodes{name}}}}}`,
+      `query($f:IssueFilter){issues(filter:$f first:250){nodes{id identifier title priority createdAt updatedAt state{name type}labels{nodes{name}}}}}`,
       {f:seFilter}
     );
-    const seBugs=seData.issues.nodes;
+    lastSeBugs=seData.issues.nodes;
 
-    // 3. Escalated = SE bugs that also have Escalation label
-    const escalatedBugs=seBugs.filter(i=>i.labels.nodes.some(l=>l.name==='Escalation'));
+    // dept labels
+    try{
+      const deptData=await linearGQL(`{ issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){ children{ nodes{ id name } } } }`);
+      lastDeptLabels=deptData?.issueLabel?.children?.nodes||[];
+    }catch(e){lastDeptLabels=[];}
 
-    const totalReported=sourceBugs.length;
-    const totalSE=seBugs.length;
-    const totalEscalated=escalatedBugs.length;
-    const seRate=totalReported>0?Math.round(totalSE/totalReported*100):0;
-    const escalationRate=totalSE>0?Math.round(totalEscalated/totalSE*100):0;
-
-    // 4. Status buckets from source bugs (Product + Requests)
-    const buckets={'In Progress':[],'In Review':[],'Done / Resolved':[]};
-    for(const i of sourceBugs){
-      const type=(i.state?.type||'').toLowerCase();
-      const name=(i.state?.name||'').toLowerCase();
-      if(name.includes('review')) buckets['In Review'].push(i);
-      else if(type==='started'||name.includes('progress')) buckets['In Progress'].push(i);
-      else if(type==='completed'||name==='done'||name==='resolved') buckets['Done / Resolved'].push(i);
-      
-    }
-
-    // resolved counts
-    const resolvedSource=buckets['Done / Resolved'].length;
-    const resolvedSE=seBugs.filter(i=>{
-      const name=(i.state?.name||'').toLowerCase();
-      const type=(i.state?.type||'').toLowerCase();
-      return name==='deployed'||name.includes('deploy')||type==='completed';
-    }).length;
-    const totalResolved=resolvedSource+resolvedSE;
-
-    // 5. Monthly trend
-    const monthlyReported={},monthlySE={},monthlyEscalated={};
-    for(const i of sourceBugs){const k=monthKey(i.createdAt);monthlyReported[k]=(monthlyReported[k]||0)+1;}
-    for(const i of seBugs){const k=monthKey(i.createdAt);monthlySE[k]=(monthlySE[k]||0)+1;}
-    for(const i of escalatedBugs){const k=monthKey(i.createdAt);monthlyEscalated[k]=(monthlyEscalated[k]||0)+1;}
-    const allMonths=[...new Set([...Object.keys(monthlyReported),...Object.keys(monthlySE),...Object.keys(monthlyEscalated)])].sort();
-
-    // scope + time
-    const dateLabel=dateFrom&&dateTo?`${fmtDate(dateFrom)} – ${fmtDate(dateTo)}`:dateFrom?`from ${fmtDate(dateFrom)}`:dateTo?`until ${fmtDate(dateTo)}`:'all time';
-    document.getElementById('dash-scope').textContent='scope: Product + Requests → Software Engineering';
+    const dateFrom2=document.getElementById('date-from').value;
+    const dateTo2=document.getElementById('date-to').value;
+    const dateLabel=dateFrom2&&dateTo2?`${fmtDate(dateFrom2)} – ${fmtDate(dateTo2)}`:dateFrom2?`from ${fmtDate(dateFrom2)}`:dateTo2?`until ${fmtDate(dateTo2)}`:'all time';
     document.getElementById('dash-time').textContent=`${dateLabel} · snapshot ${new Date().toLocaleString()}`;
 
-    // render metrics
-    document.getElementById('metrics').innerHTML=`
-      <div class="metric">
-        <div class="metric-val" style="color:var(--red)">${totalReported}</div>
-        <div class="metric-lbl">Bugs Reported</div>
-        <div class="metric-sub">Product + Requests</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val" style="color:var(--amber)">${totalSE}</div>
-        <div class="metric-lbl">Sent To SE</div>
-        <div class="metric-sub">${seRate}% of reported</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val" style="color:var(--purple)">${totalEscalated}</div>
-        <div class="metric-lbl">Escalated</div>
-        <div class="metric-sub">${totalEscalated}/${totalSE} sent to SE</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val" style="color:var(--green)">${totalResolved}</div>
-        <div class="metric-lbl">Resolved</div>
-        <div class="metric-sub" style="line-height:1.6">
-          ${resolvedSource} Done/Resolved (P+R)<br/>
-          ${resolvedSE} Deployed (SE)
-        </div>
-      </div>`;
-
-    // render trend chart — grouped bar
-    if(trendChart) trendChart.destroy();
-    trendChart=new Chart(document.getElementById('trend-chart').getContext('2d'),{
-      type:'bar',
-      data:{
-        labels:allMonths.map(monthLabel),
-        datasets:[
-          {
-            label:'Bugs Reported',
-            data:allMonths.map(k=>monthlyReported[k]||0),
-            backgroundColor:'rgba(248,113,113,0.7)',
-            borderColor:'#f87171',
-            borderWidth:1,
-            borderRadius:4,
-          },
-          {
-            label:'Sent To SE',
-            data:allMonths.map(k=>monthlySE[k]||0),
-            backgroundColor:'rgba(251,191,36,0.7)',
-            borderColor:'#fbbf24',
-            borderWidth:1,
-            borderRadius:4,
-          },
-          {
-            label:'Escalated',
-            data:allMonths.map(k=>monthlyEscalated[k]||0),
-            backgroundColor:'rgba(167,139,250,0.7)',
-            borderColor:'#a78bfa',
-            borderWidth:1,
-            borderRadius:4,
-          }
-        ]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-          legend:{
-            display:true,
-            labels:{color:'#888894',font:{family:'IBM Plex Sans',size:11},boxWidth:12,padding:16}
-          },
-          tooltip:{
-            callbacks:{
-              afterBody:function(items){
-                const idx=items[0].dataIndex;
-                const k=allMonths[idx];
-                const r=monthlyReported[k]||0;
-                const s=monthlySE[k]||0;
-                const e=monthlyEscalated[k]||0;
-                const seRate=r>0?Math.round(s/r*100):0;
-                const escRate=s>0?Math.round(e/s*100):0;
-                return [`SE rate: ${seRate}%`, `Escalation rate: ${escRate}%`];
-              }
-            }
-          }
-        },
-        scales:{
-          x:{
-            grouped:true,
-            grid:{color:'rgba(255,255,255,0.04)'},
-            ticks:{color:'#888894',font:{size:11},autoSkip:false,maxRotation:45}
-          },
-          y:{
-            beginAtZero:true,
-            grid:{color:'rgba(255,255,255,0.04)'},
-            ticks:{color:'#888894',font:{size:11},stepSize:1}
-          }
-        }
-      }
-    });
-
-    // render status breakdown
-    document.getElementById('breakdown').innerHTML=STATUSES.map((s,idx)=>{
-      const list=buckets[s]||[];const c=list.length;
-      const col=SCOLORS[s];const rowId=`issues-${idx}`;
-      const rows=list.slice(0,10).map(i=>`<div class="issue-item">
-        <span class="issue-id">${i.identifier}</span>
-        <span class="issue-title">${i.title}</span>
-        <span class="pri pri-${i.priority||4}">${PRIL[i.priority]||'None'}</span>
-      </div>`).join('');
-      const more=c-10;
-      return `<div class="status-card">
-        <div class="status-card-header">
-          <span class="dot" style="background:${col}"></span>
-          <span class="status-card-name">${s}</span>
-          ${c?`<button class="chevron-btn" onclick="toggleList('${rowId}',this)">▾</button>`:''}
-        </div>
-        <div class="status-card-count" style="color:${col}">${c}</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:4px">${totalReported>0?Math.round(c/totalReported*100):0}% of reported</div>
-        ${c?`<div class="issue-list" id="${rowId}">${rows}${more>0?`<div style="padding:4px 0;font-size:10px;color:var(--dim)">+ ${more} more</div>`:''}</div>`:''}
-      </div>`;
-    }).join('');
-
-    // 6. Department breakdown
-    try{
-      const deptData=await linearGQL(`{
-        issueLabel(id:"19c74492-713c-48be-b714-3859d663fdfb"){
-          children{ nodes{ id name } }
-        }
-      }`);
-      const deptLabels=deptData?.issueLabel?.children?.nodes||[];
-
-      if(!deptLabels.length){
-        document.getElementById('dept-breakdown').innerHTML='<p style="font-size:13px;color:var(--dim)">No department labels found.</p>';
-      } else {
-        const deptBuckets={};
-        let untaggedCount=0;
-        for(const issue of sourceBugs){
-          const issueLabels=issue.labels.nodes.map(l=>l.name);
-          const matched=deptLabels.filter(d=>issueLabels.includes(d.name));
-          if(matched.length===0){
-            untaggedCount++;
-          } else {
-            for(const d of matched){
-              deptBuckets[d.name]=(deptBuckets[d.name]||0)+1;
-            }
-          }
-        }
-        const sorted=Object.entries(deptBuckets).sort((a,b)=>b[1]-a[1]);
-        const maxVal=sorted.length?sorted[0][1]:1;
-        let html=sorted.map(([name,count])=>{
-          const pct=totalReported>0?Math.round(count/totalReported*100):0;
-          const barPct=Math.round(count/maxVal*100);
-          return `<div class="dept-row">
-            <span class="dept-name">${name}</span>
-            <div class="dept-bar-wrap"><div class="dept-bar" style="width:${barPct}%"></div></div>
-            <span class="dept-count">${count}</span>
-            <span class="dept-pct">${pct}%</span>
-          </div>`;
-        }).join('');
-        if(untaggedCount){
-          const pct=totalReported>0?Math.round(untaggedCount/totalReported*100):0;
-          const barPct=Math.round(untaggedCount/maxVal*100);
-          html+=`<div class="dept-row">
-            <span class="dept-name" style="color:var(--dim)">Untagged</span>
-            <div class="dept-bar-wrap"><div class="dept-bar" style="width:${barPct}%;background:var(--dim)"></div></div>
-            <span class="dept-count" style="color:var(--dim)">${untaggedCount}</span>
-            <span class="dept-pct">${pct}%</span>
-          </div>`;
-        }
-        document.getElementById('dept-breakdown').innerHTML=html||'<p style="font-size:13px;color:var(--dim)">No department data found.</p>';
-      }
-    }catch(e){
-      document.getElementById('dept-breakdown').innerHTML=`<div class="err">Could not load departments: ${e.message}</div>`;
-    }
+    renderDashboard(lastSourceBugs, lastSeBugs, lastDeptLabels);
 
   }catch(e){setErr('err-dash','Failed to load: '+e.message);}
   finally{const rb=document.getElementById('refresh-btn');if(rb){rb.innerHTML='↻ Refresh';rb.disabled=false;}}
@@ -511,7 +615,7 @@ function toggleList(id,btn){
 }
 
 function resetAll(){
-  apiKey='';
+  apiKey='';lastSourceBugs=[];lastSeBugs=[];lastDeptLabels=[];
   if(trendChart){trendChart.destroy();trendChart=null;}
   try{localStorage.removeItem('linear_api_key');}catch(e){}
   document.getElementById('api-input').value='';
