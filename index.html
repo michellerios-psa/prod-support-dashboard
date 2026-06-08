@@ -514,7 +514,35 @@ function generateSummary(sourceBugs, seBugs, escalatedBugs, dateContext, tool, d
   const toolContext=tool==='all'?'across all tools':` for ${tool}`;
 
   // keyword frequency from titles
-  const stopWords=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','has','have','had','not','no','from','by','as','it','its','this','that','when','where','which','who','how','what','after','before','during','via','per','due','upon','into','onto','about','than','then','when','while','if','so','up','out','get','set','add','new','old','fix','bug','issue','error','unable','cannot','does','doesnt','do','dont','should','would','could','will','can','may','might','must','shall','need','use','used','using','make','made','page','screen','button','field','form','user','users']);
+  const stopWords=new Set([
+    // articles, conjunctions, prepositions
+    'a','an','the','and','or','but','in','on','at','to','for','of','with','is','are','was','were',
+    'be','been','has','have','had','not','no','from','by','as','it','its','this','that','when',
+    'where','which','who','how','what','after','before','during','via','per','due','upon','into',
+    'onto','about','than','then','while','if','so','up','out','all','any','some','more','also',
+    // generic action words
+    'get','set','add','fix','bug','issue','error','update','change','remove','delete','create',
+    'edit','save','load','show','hide','display','view','open','close','move','move','moved',
+    'moving','click','select','submit','send','receive','return','reset','clear','check','mark',
+    'allow','prevent','stop','start','enable','disable','toggle','switch','apply','list','make',
+    'made','need','needs','needed','use','used','using','using','take','taken','give','given',
+    'able','unable','cannot','does','doesnt','do','dont','should','would','could','will','can',
+    'may','might','must','shall','want','wants','try','tried','seem','seems','appear','appears',
+    // generic support/tech words
+    'new','old','page','screen','button','field','form','user','users','team','teams','system',
+    'data','info','information','details','status','type','value','name','date','time','number',
+    'account','access','link','section','item','items','option','options','result','results',
+    'message','messages','code','codes','step','steps','process','ticket','tickets','request',
+    'requests','report','reports','record','records','case','cases','note','notes','line','lines',
+    'work','works','working','worked','problem','problems','wrong','right','correct','incorrect',
+    'missing','lost','found','show','showing','shown','appear','appearing','appear','still','when',
+    'after','getting','getting','trying','causing','caused','cause','causes','need','needed',
+    'needs','have','having','been','being','done','doing','going','coming','back','front','side',
+    'same','different','multiple','single','current','previous','next','last','first','second',
+    'third','following','related','associated','specific','general','various','other','another',
+    'each','every','both','either','neither','between','through','within','without','against',
+    'across','around','below','above','under','over','inside','outside','along','since','until'
+  ]);
   const wordCount={};
   for(const i of sourceBugs){
     const words=i.title.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/);
