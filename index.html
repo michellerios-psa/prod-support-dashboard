@@ -71,16 +71,16 @@
   .metric-sub { font-size: 11px; color: var(--dim); margin-top: 4px; line-height: 1.6; }
 
   /* AI summary */
-  .ai-summary-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
-  .ai-summary-header { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; cursor: pointer; user-select: none; }
-  .ai-summary-header:hover { background: var(--surface2); }
-  .ai-summary-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
+  .issue-highlights-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
+  .issue-highlights-header { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; cursor: pointer; user-select: none; }
+  .issue-highlights-header:hover { background: var(--surface2); }
+  .issue-highlights-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
   .ai-badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); font-weight: 500; }
   .ai-chevron { font-size: 12px; color: var(--dim); transition: transform 0.2s; }
   .ai-chevron.open { transform: rotate(180deg); }
-  .ai-summary-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-  .ai-summary-body.open { max-height: 500px; }
-  .ai-summary-content { padding: 0 1.25rem 1.25rem; font-size: 13px; color: var(--muted); line-height: 1.8; border-top: 0.5px solid var(--border); padding-top: 1rem; }
+  .issue-highlights-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .issue-highlights-body.open { max-height: 500px; }
+  .issue-highlights-content { padding: 0 1.25rem 1.25rem; font-size: 13px; color: var(--muted); line-height: 1.8; border-top: 0.5px solid var(--border); padding-top: 1rem; }
 
   /* narrative */
   .narrative { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 13px; color: var(--muted); line-height: 1.8; }
@@ -202,21 +202,18 @@
     <!-- metrics -->
     <div class="metric-row" id="metrics"></div>
 
-    <!-- narrative -->
-    <div class="narrative" id="narrative"></div>
-
-    <!-- AI summary -->
-    <div class="ai-summary-wrap">
-      <div class="ai-summary-header" onclick="toggleAI()">
-        <div class="ai-summary-title">
-          <span>AI Summary</span>
-          <span class="ai-badge">AI</span>
+    <!-- Issue Highlights -->
+    <div class="issue-highlights-wrap">
+      <div class="issue-highlights-header" onclick="toggleAI()">
+        <div class="issue-highlights-title">
+          <span>Issue Highlights</span>
+          
           <span id="ai-status" style="font-size:11px;color:var(--dim);font-weight:400"></span>
         </div>
         <span class="ai-chevron" id="ai-chevron">▾</span>
       </div>
-      <div class="ai-summary-body" id="ai-body">
-        <div class="ai-summary-content" id="ai-content"></div>
+      <div class="issue-highlights-body" id="ai-body">
+        <div class="issue-highlights-content" id="ai-content"></div>
       </div>
     </div>
 
@@ -410,20 +407,10 @@ function renderDashboard(sourceBugs, seBugs, deptLabels){
       <div class="metric-sub">days to resolved</div>
     </div>`;
 
-  // narrative
-  const openCount=(buckets['Open']?.length||0)+(buckets['In Progress']?.length||0)+(buckets['In Review']?.length||0);
+  // date context for summary
   const dateFrom=document.getElementById('date-from').value;
   const dateTo=document.getElementById('date-to').value;
   const dateContext=dateFrom&&dateTo?`Between ${fmtDate(dateFrom)} and ${fmtDate(dateTo)}`:dateFrom?`From ${fmtDate(dateFrom)}`:dateTo?`Until ${fmtDate(dateTo)}`:'Across all time';
-  document.getElementById('narrative').innerHTML=`
-    <strong style="color:var(--text)">${dateContext}</strong>${activeTool!=='all'?` for <strong style="color:var(--text)">${activeTool}</strong>`:''}, 
-    <strong style="color:var(--red)">${totalReported} bug${totalReported!==1?'s':''}</strong> were reported across Product and Requests.
-    Of those, <strong style="color:var(--amber)">${totalSE}</strong> were sent to Software Engineering
-    and <strong style="color:var(--purple)">${totalEscalated}</strong> were escalated
-    (${escalationRate}% of SE bugs).
-    <strong style="color:var(--green)">${totalResolved}</strong> bug${totalResolved!==1?'s have':' has'} been resolved
-    ${avgResolutionDays!=='—'?`with an average resolution time of <strong style="color:var(--blue)">${avgResolutionDays} day${avgResolutionDays!==1?'s':''}</strong>`:''}
-    and <strong style="color:var(--text)">${openCount}</strong> remain${openCount===1?'s':''} open.`;
 
   // chart
   if(trendChart) trendChart.destroy();
@@ -508,50 +495,93 @@ function renderDashboard(sourceBugs, seBugs, deptLabels){
   }
 
   // AI summary
-  generateAISummary(filtered, filteredSE, escalatedBugs, dateContext, activeTool);
+  generateSummary(filtered, filteredSE, escalatedBugs, dateContext, activeTool, deptLabels, totalResolved, avgResolutionDays);
 }
 
-async function generateAISummary(sourceBugs, seBugs, escalatedBugs, dateContext, tool){
+function generateSummary(sourceBugs, seBugs, escalatedBugs, dateContext, tool, deptLabels, totalResolved, avgResolutionDays){
   const statusEl=document.getElementById('ai-status');
   const contentEl=document.getElementById('ai-content');
-  statusEl.textContent='Generating…';
-  contentEl.innerHTML='<span class="spinner"></span> Analyzing bug themes...';
+  statusEl.textContent='';
 
-  const titles=sourceBugs.map(i=>i.title).slice(0,80);
-  const labels=[...new Set(sourceBugs.flatMap(i=>i.labels.nodes.map(l=>l.name)))].filter(l=>!['Bug','Escalation','Component: Support','Rhapsody','Ironhide'].includes(l));
-  const toolContext=tool==='all'?'all tools':tool;
-
-  const prompt=`You are a product support analyst. Based on the following bug report titles and labels from ${dateContext.toLowerCase()} for ${toolContext}, write a concise 3-4 sentence plain-language summary that:
-1. Identifies the main themes or topic areas these bugs cluster around (e.g. billing, enrollment, payments)
-2. Notes any patterns in what types of issues were escalated
-3. Is written so a non-technical stakeholder can immediately understand what the support team has been dealing with
-
-Bug titles:
-${titles.join('\n')}
-
-Labels applied (excluding system labels):
-${labels.slice(0,30).join(', ')}
-
-Write only the summary, no headers or bullet points.`;
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data=await res.json();
-    const text=data.content?.find(b=>b.type==='text')?.text||'Could not generate summary.';
-    contentEl.innerHTML=text.replace(/\n/g,'<br/>');
-    statusEl.textContent='';
-  }catch(e){
-    contentEl.innerHTML='Could not generate AI summary.';
-    statusEl.textContent='';
+  if(!sourceBugs.length){
+    contentEl.innerHTML='No bugs found for the selected date range and filters.';
+    return;
   }
+
+  const totalReported=sourceBugs.length;
+  const totalSE=seBugs.length;
+  const totalEscalated=escalatedBugs.length;
+  const toolContext=tool==='all'?'across all tools':` for ${tool}`;
+
+  // keyword frequency from titles
+  const stopWords=new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','has','have','had','not','no','from','by','as','it','its','this','that','when','where','which','who','how','what','after','before','during','via','per','due','upon','into','onto','about','than','then','when','while','if','so','up','out','get','set','add','new','old','fix','bug','issue','error','unable','cannot','does','doesnt','do','dont','should','would','could','will','can','may','might','must','shall','need','use','used','using','make','made','page','screen','button','field','form','user','users']);
+  const wordCount={};
+  for(const i of sourceBugs){
+    const words=i.title.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/);
+    for(const w of words){
+      if(w.length>3 && !stopWords.has(w)){
+        wordCount[w]=(wordCount[w]||0)+1;
+      }
+    }
+  }
+  const topWords=Object.entries(wordCount).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([w])=>w);
+
+  // top departments
+  const deptCounts={};
+  for(const issue of sourceBugs){
+    const issueLabels=issue.labels.nodes.map(l=>l.name);
+    for(const d of deptLabels){
+      if(issueLabels.includes(d.name)) deptCounts[d.name]=(deptCounts[d.name]||0)+1;
+    }
+  }
+  const topDepts=Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n])=>n);
+
+  // escalation pattern - top labels on escalated bugs
+  const escLabels={};
+  for(const i of escalatedBugs){
+    for(const l of i.labels.nodes){
+      if(!['Bug','Escalation','Component: Support','Rhapsody','Ironhide'].includes(l.name)){
+        escLabels[l.name]=(escLabels[l.name]||0)+1;
+      }
+    }
+  }
+  const topEscLabels=Object.entries(escLabels).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n])=>n);
+
+  // build summary paragraphs
+  let summary='';
+
+  // para 1 - overview with stats
+  const seRate=totalReported>0?Math.round(totalSE/totalReported*100):0;
+  summary+=`<strong style="color:var(--text)">${dateContext}${toolContext}</strong>, `;
+  summary+=`<strong style="color:var(--red)">${totalReported} bug${totalReported!==1?'s were':' was'}</strong> reported across Product and Requests. `;
+  summary+=`Of those, <strong style="color:var(--amber)">${totalSE}</strong> were sent to Software Engineering (${seRate}% of reported) `;
+  summary+=`and <strong style="color:var(--purple)">${totalEscalated}</strong> were formally escalated. `;
+  summary+=`<strong style="color:var(--green)">${totalResolved}</strong> bug${totalResolved!==1?'s have':' has'} been resolved`;
+  summary+=avgResolutionDays!=='—'?`, with an average resolution time of <strong style="color:var(--blue)">${avgResolutionDays} day${avgResolutionDays!==1?'s':''}</strong>.`:'.';
+
+  summary+='<br/><br/>';
+
+  // para 2 - themes from titles
+  if(topWords.length){
+    summary+=`<strong style="color:var(--text)">Common themes</strong> across bug titles include `;
+    summary+=topWords.slice(0,5).map((w,i)=>`<em>${w}</em>`).join(', ')+'. ';
+  }
+
+  // top departments
+  if(topDepts.length){
+    summary+=`The most affected department${topDepts.length>1?'s are':'is'} <strong style="color:var(--text)">${topDepts.join(', ')}</strong>. `;
+  }
+
+  // escalation patterns
+  if(topEscLabels.length){
+    summary+='<br/><br/>';
+    summary+=`<strong style="color:var(--text)">Escalation patterns</strong>: escalated bugs were most commonly tagged with <strong style="color:var(--purple)">${topEscLabels.join(', ')}</strong>.`;
+  } else if(totalEscalated===0){
+    summary+='<br/><br/>';
+    summary+='<strong style="color:var(--text)">No escalations</strong> were recorded in this period.';
+  }
+
+  contentEl.innerHTML=summary;
 }
 
 async function loadDash(btn){
@@ -562,7 +592,7 @@ async function loadDash(btn){
   document.getElementById('metrics').innerHTML='<div style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading…</div>';
   document.getElementById('breakdown').innerHTML='';
   document.getElementById('dept-breakdown').innerHTML='<span style="font-size:13px;color:var(--dim)"><span class="spinner"></span>Loading...</span>';
-  document.getElementById('narrative').innerHTML='';
+  
   document.getElementById('ai-content').innerHTML='';
   document.getElementById('ai-status').textContent='';
 
